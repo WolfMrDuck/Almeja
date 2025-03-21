@@ -1,54 +1,79 @@
 <script setup>
-import { ref } from 'vue';
+  import { ref } from 'vue';
+    const token = ref('');
+    const mostrarTokenForm = ref(false);
 
-const email = ref('');
-const password = ref('');
-const token = ref('');
-const mostrarTokenForm = ref(false);
+    const validarToken = () => {
+        alert(`Token ingresado: ${token.value}`);
+        mostrarTokenForm.value = false;
+    };
 
-const login = () => {
-  // Simula el envío del login y abre el formulario del token
-  mostrarTokenForm.value = true;
-};
+    const cancelarToken = () => {
+        mostrarTokenForm.value = false;
+    };
 
-const validarToken = () => {
-  alert(`Token ingresado: ${token.value}`);
-  mostrarTokenForm.value = false;
-};
+    const mostrarGeneradorToken = ref(false);
 
-const cancelarToken = () => {
-  mostrarTokenForm.value = false;
-};
+    const copiarToken = () => {
+      alert('Token copiado');
+      mostrarGeneradorToken.value = false;
+    }
+
+
+  
 </script>
 
 <template>
   <div class="container">
     <!-- Sección de la imagen -->
     <div class="left">
-      <img src="../assets/ESCOM.jpg" alt="Imagen de Login" />
+      <img src="../assets/img-fuentes.jpg" alt="Imagen de Login" />
     </div>
 
-    <!-- Sección del formulario de login -->
+    <!-- Sección del login -->
     <div class="right">
-      <h2>Iniciar Sesión</h2>
-      <form @submit.prevent="login">
-        <input v-model="email" id="correo" type="email" placeholder="Correo electrónico" required />
-        <input v-model="password" type="password" placeholder="Contraseña" required />
-        <button type="submit">Iniciar Sesión</button>
-      </form>
-    </div>
+      <h1 class="title">BIENVENIDO</h1>
+      <button class="btn btn-outline" @click="mostrarTokenForm = true">Iniciar Sesión</button>
+      
+      <div class="divider">
+        <hr class="line" />
+        <span class="text">o</span>
+        <hr class="line" />
+      </div>
+
+      <button class="btn btn-primary" @click="mostrarGeneradorToken = true">Generar Token</button>
+
+    </div> <!--fin div sección derecha -->
 
     <!-- Modal de Token -->
     <div v-if="mostrarTokenForm" class="modal">
       <div class="modal-content">
-        <h3>Ingrese su Token</h3>
+        <h3>Por favor, ingrese el token de acceso</h3>
         <input v-model="token" type="text" placeholder="Token de verificación" required />
-        <div class="buttons">
-          <button @click="validarToken">Validar</button>
-          <button class="cancel" @click="cancelarToken">Cancelar</button>
+        <div class="modal-btn">
+          <button class="m-button btn-primary" @click="validarToken">Validar</button>
+          <button class="m-button cancel" @click="cancelarToken">Cancelar</button>
         </div>
       </div>
     </div>
+
+    <!-- Modal de Generación -->
+    <div v-if="mostrarGeneradorToken" class="modal">
+      <div class="modal-content">
+        <h3 class="text-mod">Se ha generado su token de acceso:</h3>
+
+        <p> <span>El token será válido por X días.</span> Por favor, 
+          copie y guarde el token en un lugar seguro. No comparta este token con nadie 
+          para proteger la seguridad de la cuenta.
+        </p>
+
+        <button class="m-button btn-primary" @click="copiarToken">Copiar</button>
+        <button class="m-button cancel" @click="mostrarGeneradorToken = false">Cerrar</button>
+
+      </div>
+      
+    </div>
+
   </div>
 </template>
 
@@ -75,38 +100,67 @@ const cancelarToken = () => {
 .right {
   flex-direction: column;
   background: #f4f4f4;
-  padding: 20px;
+  padding: 40px;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  width: 80%;
+.title {
+  font-size: 32px;
+  font-weight: bold;
+  color: #006B9F;
+  margin-bottom: 20px;
 }
 
-input {
-  margin: 10px 0;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-button {
-  background: #3498db;
-  color: white;
-  padding: 10px;
-  border: none;
+.btn {
+  width: 250px;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
   cursor: pointer;
-  border-radius: 5px;
-  margin-top: 10px;
+  margin-bottom: 16px;
 }
 
-button:hover {
-  background: #2980b9;
+.btn-outline {
+  border: 2px solid #006B9F;
+  color: #006B9F;
+  background-color: transparent;
 }
 
-/* Estilos del modal */
-.modal {
+.btn-outline:hover {
+  background-color: #DBEAFE;
+}
+
+.btn-primary {
+  background-color: #006B9F;
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #006B9F;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  width: 250px;
+  margin-bottom: 16px;
+}
+
+.line {
+  flex-grow: 1;
+  border: none;
+  height: 1px;
+  background-color: #ccc;
+}
+
+.text {
+  margin: 0 10px;
+  color: #666;
+}
+
+   /* Estilos del modal */
+  .modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -125,17 +179,38 @@ button:hover {
   text-align: center;
 }
 
-.buttons {
+.modal-btn {
   display: flex;
   justify-content: space-around;
   margin-top: 10px;
 }
 
+.m-button{
+  width: 100px;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+.btn-primary {
+  background-color: #006B9F;
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #006B9F;
+}
+
 .cancel {
-  background: #e74c3c;
+  background: #E94D4D;
+  color: #ffffff;
+  border: #E94D4D;
 }
 
 .cancel:hover {
-  background: #c0392b;
+  background: #E94D4D;
+  color: #ffffff;
 }
+
 </style>
