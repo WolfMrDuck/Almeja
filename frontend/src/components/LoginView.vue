@@ -33,6 +33,9 @@
     <!-- Sección del login -->
     <div class="right">
       <h1 class="title">BIENVENIDO</h1>
+      <p></p>
+      <p></p>
+      <p></p>
       <button class="btn btn-outline" @click="mostrarTokenForm = true">Iniciar Sesión</button>
       
       <div class="divider">
@@ -104,14 +107,15 @@
 }
 
 .title {
-  font-size: 32px;
+  font-size: 52px;
   font-weight: bold;
+  font-family: Arial;
   color: #006B9F;
   margin-bottom: 20px;
 }
 
 .btn {
-  width: 250px;
+  width: 350px;
   padding: 12px;
   font-size: 16px;
   font-weight: bold;
