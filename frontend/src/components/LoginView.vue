@@ -52,7 +52,7 @@
     <div v-if="mostrarTokenForm" class="modal">
       <div class="modal-content">
         <h3>Por favor, ingrese el token de acceso</h3>
-        <input v-model="token" type="text" placeholder="Token de verificación" required />
+        <input v-model="token" type="text" required />
         <div class="modal-btn">
           <button class="m-button btn-primary" @click="validarToken">Validar</button>
           <button class="m-button cancel" @click="cancelarToken">Cancelar</button>
@@ -65,7 +65,7 @@
       <div class="modal-content">
         <h3 class="text-mod">Se ha generado su token de acceso:</h3>
 
-        <p> <span>El token será válido por X días.</span> Por favor, 
+        <p class="token-generado"> <span style = "font-weight: bold;">El token será válido por X días.</span> Por favor, 
           copie y guarde el token en un lugar seguro. No comparta este token con nadie 
           para proteger la seguridad de la cuenta.
         </p>
@@ -95,15 +95,17 @@
 }
 
 .left img {
-  width: 100%;
-  height: 100%;
+  width: 52%;
+  height: 105%;
   object-fit: cover;
+  position: absolute;
+  
 }
 
 .right {
   flex-direction: column;
   background: #f4f4f4;
-  padding: 40px;
+  height: 102.5%;
 }
 
 .title {
@@ -190,10 +192,11 @@
 }
 
 .m-button{
-  width: 100px;
+  width: 150px;
   padding: 12px;
   border-radius: 10px;
   font-weight: bold;
+  margin: 20px;
 }
 
 .btn-primary {
@@ -217,4 +220,27 @@
   color: #ffffff;
 }
 
+h3{
+  font-size: 25px;
+  font-family: Arial;
+  color: rgb(0, 107, 159);
+  font-weight: normal;
+}
+
+input {
+  width: 480px;              /* Ancho del input más amplio */
+  height: 20px;              /* Altura mayor */
+  border: none;
+  border-radius: 8px;
+  padding: 10px;             /* Espaciado interno */
+  background-color: rgba(0, 107, 159,0.2) ;
+  font-size: 18px;           /* Texto más grande */
+}
+
+/* Estilo para el mensaje cuando se genera el token */
+.token-generado{
+  color: #006B9F;
+  font-size: 22px;
+  text-align: justify;
+}
 </style>
