@@ -1,5 +1,22 @@
 <script>
-    
+    export default{
+      props: {
+        mostrarTokenForm: Boolean,
+      },
+      data() {
+        return{
+          token: "",
+        }
+      },
+      methods: {
+        validarToken(){
+          this.$emit("validar",this.token);
+        },
+        cerrarModal(){
+          this.$emit("cerrar");
+        }
+      }
+    }
 </script>
 
 <template>
@@ -10,13 +27,13 @@
         <input v-model="token" type="text" placeholder="Token de verificación" required />
         <div class="modal-btn">
           <button class="m-button btn-primary" @click="validarToken">Validar</button>
-          <button class="m-button cancel" @click="cancelarToken">Cancelar</button>
+          <button class="m-button cancel" @click="cerrarModal">Cancelar</button>
         </div>
       </div>
     </div>
 </template>
 
-<style>
+<style scoped>
     /* Estilos del modal */
 .modal {
   position: fixed;

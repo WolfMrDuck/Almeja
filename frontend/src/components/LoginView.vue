@@ -1,26 +1,26 @@
-<script setup>
-  import { ref } from 'vue';
-    const token = ref('');
-    const mostrarTokenForm = ref(false);
-
-    const validarToken = () => {
-        alert(`Token ingresado: ${token.value}`);
-        mostrarTokenForm.value = false;
-    };
-
-    const cancelarToken = () => {
-        mostrarTokenForm.value = false;
-    };
-
-    const mostrarGeneradorToken = ref(false);
-
-    const copiarToken = () => {
-      alert('Token copiado');
-      mostrarGeneradorToken.value = false;
-    }
-
-
-  
+<script>
+  import ModalGenerarToken from './ModalGenerarToken.vue';
+  import ModalToken from './ModalToken.vue';
+  export default {
+    name: "LoginView",
+    components: {
+      ModalToken,
+      ModalGenerarToken,
+    },
+    data() {
+      return {
+        mostrarTokenForm: false,
+        mostrarGeneradorToken: false,
+      };
+    },
+    methods: {
+      validarToken(Token){
+        alert(`Token ingresado: ${Token}`);
+        this.mostrarTokenForm = false;
+      },
+      
+    },
+  };
 </script>
 
 <template>
@@ -28,6 +28,7 @@
     <!-- Sección de la imagen -->
     <div class="left">
       <img src="../assets/img-fuentes.jpg" alt="Imagen de Login" />
+      <div class="overlay"></div>
     </div>
 
     <!-- Sección del login -->
@@ -45,34 +46,11 @@
 
     </div> <!--fin div sección derecha -->
 
-    <!-- Modal de Token -->
-    <div v-if="mostrarTokenForm" class="modal">
-      <div class="modal-content">
-        <h3>Por favor, ingrese el token de acceso</h3>
-        <input v-model="token" type="text" placeholder="Token de verificación" required />
-        <div class="modal-btn">
-          <button class="m-button btn-primary" @click="validarToken">Validar</button>
-          <button class="m-button cancel" @click="cancelarToken">Cancelar</button>
-        </div>
-      </div>
-    </div>
+    <!-- Modal Validación Token -->
+    <ModalToken :mostrarTokenForm="mostrarTokenForm" @validar = "validarToken" @cerrar = "mostrarTokenForm = false"/>
 
-    <!-- Modal de Generación -->
-    <div v-if="mostrarGeneradorToken" class="modal">
-      <div class="modal-content">
-        <h3 class="text-mod">Se ha generado su token de acceso:</h3>
-
-        <p> <span>El token será válido por X días.</span> Por favor, 
-          copie y guarde el token en un lugar seguro. No comparta este token con nadie 
-          para proteger la seguridad de la cuenta.
-        </p>
-
-        <button class="m-button btn-primary" @click="copiarToken">Copiar</button>
-        <button class="m-button cancel" @click="mostrarGeneradorToken = false">Cerrar</button>
-
-      </div>
-      
-    </div>
+    <!-- Modal Generación Token -->
+    <ModalGenerarToken :mostrarGeneradorToken="mostrarGeneradorToken" @cerrar = "mostrarGeneradorToken = false"/>
 
   </div>
 </template>
@@ -82,6 +60,7 @@
 .container {
   display: flex;
   height: 100vh;
+  padding: 0;
 }
 
 .left, .right {
@@ -101,6 +80,15 @@
   flex-direction: column;
   background: #f4f4f4;
   padding: 40px;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 47.5%;
+  height: 100%;
+  background-color: rgba(191, 223, 234, 49%); 
 }
 
 .title {
@@ -158,59 +146,5 @@
   margin: 0 10px;
   color: #666;
 }
-
-   /* Estilos del modal */
-  .modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-}
-
-.modal-btn {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 10px;
-}
-
-.m-button{
-  width: 100px;
-  padding: 12px;
-  border-radius: 10px;
-  font-weight: bold;
-}
-
-.btn-primary {
-  background-color: #006B9F;
-  color: white;
-  border: none;
-}
-
-.btn-primary:hover {
-  background-color: #006B9F;
-}
-
-.cancel {
-  background: #E94D4D;
-  color: #ffffff;
-  border: #E94D4D;
-}
-
-.cancel:hover {
-  background: #E94D4D;
-  color: #ffffff;
-}
-
+  
 </style>
