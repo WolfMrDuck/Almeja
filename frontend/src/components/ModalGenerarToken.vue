@@ -40,8 +40,10 @@
           para proteger la seguridad de la cuenta.
         </p>
 
+        <div class="cont-btn">
         <button class="m-button btn-primary" @click="copiarToken">Copiar</button>
         <button class="m-button cancel" @click="cerrarModal">Cerrar</button>
+        </div>
 
       </div>
     </div> 
@@ -65,6 +67,13 @@
   padding: 20px;
   border-radius: 10px;
   text-align: center;
+  width: 35%;
+}
+
+.cont-btn{
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 10px;
 }
 
 .m-button{
