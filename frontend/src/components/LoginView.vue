@@ -28,12 +28,15 @@
     <!-- Sección de la imagen -->
     <div class="left">
       <img src="../assets/img-fuentes.jpg" alt="Imagen de Login" />
-      <div class="overlay"></div>
+      <!-- <div class="overlay"></div> -->
     </div>
 
     <!-- Sección del login -->
     <div class="right">
       <h1 class="title">BIENVENIDO</h1>
+      <p></p>
+      <p></p>
+      <p></p>
       <button class="btn btn-outline" @click="mostrarTokenForm = true">Iniciar Sesión</button>
       
       <div class="divider">
@@ -92,7 +95,8 @@
 }
 
 .title {
-  font-size: 32px;
+  font-size: 52px;
+  font-family: Arial;
   font-weight: bold;
   color: #006B9F;
   margin-bottom: 20px;

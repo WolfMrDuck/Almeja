@@ -35,7 +35,7 @@
 
         <input type="text" :value="token" readonly />
 
-        <p> <span>El token será válido por X días.</span> Por favor, 
+        <p class="token-general"> <span style="font-weight: bold;">El token será válido por X días.</span> Por favor, 
           copie y guarde el token en un lugar seguro. No comparta este token con nadie 
           para proteger la seguridad de la cuenta.
         </p>
@@ -64,20 +64,34 @@
 
 .modal-content {
   background: white;
-  padding: 20px;
+  padding: 30px;
   border-radius: 10px;
   text-align: center;
   width: 35%;
 }
 
+.text-mod{
+ font-size: 25px;
+ font-family: Arial, Helvetica, sans-serif;
+ color: #006B9F;
+ font-weight: bold;
+}
+
+.token-general{
+  color: #006B9F;
+  font-size: 18px;
+  text-align: justify;
+  margin-top: 20px;
+}
+
 .cont-btn{
   display: flex;
   justify-content: space-evenly;
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
 .m-button{
-  width: 100px;
+  width: 150px;
   padding: 12px;
   border-radius: 10px;
   font-weight: bold;
@@ -103,4 +117,16 @@
   background: #E94D4D;
   color: #ffffff;
 }
+
+input{
+ width: 460px;
+ height: 20px;
+ border: none;
+ border-radius: 8px;
+ padding: 10px;
+ background-color: rgba(0, 107, 159, 0);
+ font-size: 18px;
+ text-align: center;
+}
+
 </style>

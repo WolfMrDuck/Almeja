@@ -4,6 +4,6 @@ import Panel from './components/Panel.vue';
 </script>
 
 <template>
-   <!-- <LoginView /> -->
-    <Panel/>
+   <LoginView />
+    <!-- <Panel/> -->
 </template>
