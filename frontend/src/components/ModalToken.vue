@@ -1,5 +1,22 @@
 <script>
-    
+    export default{
+      props: {
+        mostrarTokenForm: Boolean,
+      },
+      data() {
+        return{
+          token: "",
+        }
+      },
+      methods: {
+        validarToken(){
+          this.$emit("validar",this.token);
+        },
+        cerrarModal(){
+          this.$emit("cerrar");
+        }
+      }
+    }
 </script>
 
 <template>
@@ -7,16 +24,16 @@
      <div v-if="mostrarTokenForm" class="modal">
       <div class="modal-content">
         <h3>Por favor, ingrese el token de acceso</h3>
-        <input v-model="token" type="text" placeholder="Token de verificación" required />
+        <input v-model="token" type="text" placeholder="" required />
         <div class="modal-btn">
           <button class="m-button btn-primary" @click="validarToken">Validar</button>
-          <button class="m-button cancel" @click="cancelarToken">Cancelar</button>
+          <button class="m-button cancel" @click="cerrarModal">Cancelar</button>
         </div>
       </div>
     </div>
 </template>
 
-<style>
+<style scoped>
     /* Estilos del modal */
 .modal {
   position: fixed;
@@ -32,6 +49,8 @@
 
 .modal-content {
   background: white;
+  display: block;
+ 
   padding: 20px;
   border-radius: 10px;
   text-align: center;
@@ -40,11 +59,11 @@
 .modal-btn {
   display: flex;
   justify-content: space-around;
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
 .m-button{
-  width: 100px;
+  width: 230px;
   padding: 12px;
   border-radius: 10px;
   font-weight: bold;
@@ -70,4 +89,22 @@
   background: #E94D4D;
   color: #ffffff;
 }
+
+h3 {
+ font-size: 25px;
+ font-family: Arial, Helvetica, sans-serif;
+ color: #006B9F;
+ font-weight: normal;
+}
+
+input{
+ width: 460px;
+ height: 20px;
+ border: none;
+ border-radius: 8px;
+ padding: 10px;
+ background-color: rgba(0, 107, 159, 0.2);
+ font-size: 18px;
+}
+
 </style>
