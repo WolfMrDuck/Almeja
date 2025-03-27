@@ -14,12 +14,12 @@
         <div class="grid">
           <div class="card g1">
             <h2 class="subtitle">ENERGÍA POR HORA</h2>
-            <!-- <LineChart /> -->
+            <GraficaLinea />
           </div>
           
           <div class="card g2">
             <h2 class="subtitle">PORCENTAJE</h2>
-            <!-- <PieChart /> -->
+            <GraficaPastel />
           </div>
           
           <div class="card g3">
@@ -44,10 +44,16 @@
     </div>
 </template>
   
-<script setup>
-  //import LineChart from "@/components/LineChart.vue";
-  //import PieChart from "@/components/PieChart.vue";
+<script>
+  import GraficaLinea from './GraficaLinea.vue';
+  import GraficaPastel from './GraficaPastel.vue';
   //import BatteryIcon from "@/components/BatteryIcon.vue";
+  export default {
+  components: {
+    GraficaLinea,
+    GraficaPastel
+  }
+}
 </script>
   
 <style>
@@ -98,7 +104,7 @@
   }
   
   .card {
-    background: white;
+    /* background: white; */
     /* border: #006B9F solid;esto es solo para ver el borde */
     padding: 15px;
     border-radius: 8px;
