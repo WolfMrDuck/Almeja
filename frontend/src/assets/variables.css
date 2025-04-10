@@ -1,0 +1,16 @@
+:root {
+    /* Paleta de Colores */
+        --color-primario: #006b9f;
+        --color-primario-hover: #2779bd ;
+        --color-secundario: #bfdfea;
+        --color-secundario-hover: #DBEAFE;
+        --color-blanco: #fefdff;
+        --color-rojo: #e94d4d;
+        --color-rojo-hover: #cc1f1a;
+        --color-deshabilitado: rgba(19,116,163,57%);
+    
+    }
+    
+body {
+        font-family: Arial, Helvetica, sans-serif;
+    }
