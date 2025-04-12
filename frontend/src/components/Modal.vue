@@ -49,7 +49,7 @@ const cerrarModal = () => {
             tipo="primario" 
             @click="cerrarModal"
           >
-            Cerrar
+            Ok
           </BotonBase>
 
         </slot>

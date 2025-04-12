@@ -45,8 +45,8 @@
 </template>
   
 <script>
-  import GraficaLinea from './GraficaLinea.vue';
-  import GraficaPastel from './GraficaPastel.vue';
+  import GraficaLinea from '@/components/GraficaLinea.vue';
+  import GraficaPastel from '@/components/GraficaPastel.vue';
   //import BatteryIcon from "@/components/BatteryIcon.vue";
   export default {
   components: {
