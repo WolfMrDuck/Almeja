@@ -3,10 +3,8 @@ import LoginView from './views/LoginView.vue';
 import Panel from './views/Panel.vue';
 </script>
 
-
-
 <template>
-   <LoginView />
+    <!-- <LoginView /> -->
     <!-- <Panel/>  -->
-<RouterView/>
+    <router-view/>
 </template>

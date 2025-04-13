@@ -1,7 +1,10 @@
 <script setup>
   import { ref,computed } from 'vue';
+  import { useRouter } from 'vue-router';
   import Modal from '@/components/Modal.vue';
   import BotonBase from '@/components/BotonBase.vue';
+
+  const router = useRouter();
   
   //Estado para controlar la visibilidad de cada modal
   const modalAbierto = ref(false);
@@ -56,8 +59,18 @@
 
   const validarToken = () => {
     if (tokenIngresado.value === tokenGenerado.value) {
+      // Guardar el estado de autenticación
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userToken', tokenGenerado.value);
+      
       modalTipo.value = 'alerta';
-      mensajeAlerta.value = '¡Token válido! Acceso concedido.';
+      mensajeAlerta.value = '¡Token válido! Acceso concedido. Redirigiendo...';
+
+      //Redirigir al panel
+    setTimeout(() => {  
+      cerrarModal();
+      router.push({name: 'panel'});
+      }, 1500);
     }else{
       mensajeValidacion.value = 'Token inválido. Inténtalo de nuevo.'
     }
