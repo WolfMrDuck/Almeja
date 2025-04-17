@@ -1,11 +1,27 @@
 <script setup>
+
   import { ref } from 'vue';
-    const token = ref('');
-    const mostrarTokenForm = ref(false);
+  import { useRouter } from 'vue-router';
+  const router = useRouter()
 
     const validarToken = () => {
-        alert(`Token ingresado: ${token.value}`);
-        mostrarTokenForm.value = false;
+      const token_entrada = document.querySelector('#token_entrada')?.value || '';
+      const token_bd = 'abcxyz'
+
+      alert(`El valor del input es: ${token_entrada}`); // Muestra el token que ingreso el usuario.
+
+      if(token_entrada === token_bd){
+        alert('Token Valido')
+        router.push('/acceso')
+      }else{
+        alert('Token NO Valido')
+      }
+    }
+
+    const mostrarTokenForm = ref(false);
+
+    const escribirMensaje = () => {
+      alert("¡Has presionado el botón!");
     };
 
     const cancelarToken = () => {
@@ -18,9 +34,6 @@
       alert('Token copiado');
       mostrarGeneradorToken.value = false;
     }
-
-
-  
 </script>
 
 <template>
@@ -52,7 +65,7 @@
     <div v-if="mostrarTokenForm" class="modal">
       <div class="modal-content">
         <h3>Por favor, ingrese el token de acceso</h3>
-        <input v-model="token" type="text" required />
+        <input  id = "token_entrada" v-model="token" type="text" required />
         <div class="modal-btn">
           <button class="m-button btn-primary" @click="validarToken">Validar</button>
           <button class="m-button cancel" @click="cancelarToken">Cancelar</button>
