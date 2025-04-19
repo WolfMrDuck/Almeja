@@ -1,39 +1,63 @@
 <script setup>
-
+  
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
-  const router = useRouter()
 
-    const validarToken = () => {
-      const token_entrada = document.querySelector('#token_entrada')?.value || '';
-      const token_bd = 'abcxyz'
+  // Variable para el uso de route
+  const router = useRouter();
 
-      alert(`El valor del input es: ${token_entrada}`); // Muestra el token que ingreso el usuario.
+  // Variables reactivas para tener el control de elemento del template
+  const mostrarTokenForm = ref(false); 
+  const mostrarGeneradorToken = ref(false);
+  const mostrarMensajeErrorCrearToken = ref(false);
 
-      if(token_entrada === token_bd){
-        alert('Token Valido')
-        router.push('/acceso')
-      }else{
-        alert('Token NO Valido')
-      }
+  function generarToken() {
+    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const longitud = 8;
+    let nuevoToken = '';
+
+    for (let i = 0; i < longitud; i++) {
+      const indiceAleatorio = Math.floor(Math.random() * caracteres.length);
+      nuevoToken += caracteres.charAt(indiceAleatorio);
     }
 
-    const mostrarTokenForm = ref(false);
+    return nuevoToken; // Retorna el token generado
+  }
 
-    const escribirMensaje = () => {
-      alert("¡Has presionado el botón!");
-    };
+  const validarToken = () => {
+    const token_entrada = document.querySelector('#token_entrada')?.value || '';
+    const token_bd = 'abcxyz'
 
-    const cancelarToken = () => {
-        mostrarTokenForm.value = false;
-    };
+    alert(`El valor del input es: ${token_entrada}`); // Muestra el token que ingreso el usuario.
 
-    const mostrarGeneradorToken = ref(false);
-
-    const copiarToken = () => {
-      alert('Token copiado');
-      mostrarGeneradorToken.value = false;
+    if(token_entrada === token_bd){
+      alert('Token Valido')
+      router.push('/acceso')
+    }else{
+      alert('Token NO Valido')
     }
+  }
+
+  const validarGeneracionToken = () => {
+    let hayToken = false
+    if(hayToken){
+      mostrarMensajeErrorCrearToken.value = true
+    }else{
+      const tokenGenerado = generarToken()
+      alert(`El token generado es: ${tokenGenerado}`);
+      mostrarGeneradorToken.value = true
+    }
+  }
+
+  const cancelarToken = () => {
+      mostrarTokenForm.value = false;
+  };
+
+  const copiarToken = () => {
+    alert('Token copiado');
+    mostrarGeneradorToken.value = false;
+  }
+
 </script>
 
 <template>
@@ -57,7 +81,11 @@
         <hr class="line" />
       </div>
 
-      <button class="btn btn-primary" @click="mostrarGeneradorToken = true">Generar Token</button>
+      <button class="btn btn-primary" @click="validarGeneracionToken">Generar Token</button>
+      <p></p>
+      <div v-if = "mostrarMensajeErrorCrearToken" class="mensaje-generar-token">
+        <p>No es posible generar un token. Espera hasta que el token actual expire.</p>
+      </div>
 
     </div> <!--fin div sección derecha -->
 
@@ -249,6 +277,21 @@ input {
   background-color: rgba(0, 107, 159,0.2) ;
   font-size: 18px;           /* Texto más grande */
 }
+
+/* Estilo para el mensaje cuando se quiere generar un token y ya existe uno */
+.mensaje-generar-token {
+  color: grey;
+  width: 320px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box; /* Esto asegura que el ancho y alto incluyan el borde */
+  font-size: 15px;
+  font-family: Arial;
+  font-weight: bold;
+}
+
 
 /* Estilo para el mensaje cuando se genera el token */
 .token-generado{
