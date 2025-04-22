@@ -103,9 +103,10 @@ const cerrarModal = () => {
 }
 
 .modal-cuerpo {
-  padding: 15px;
+  padding: 20px;
   display: grid;
   place-items: center;
+  font-size: 18px;
 }
 
 .modal-pie {

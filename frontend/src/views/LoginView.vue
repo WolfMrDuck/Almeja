@@ -1,83 +1,44 @@
 <script setup>
-  import { ref,computed } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { ref } from 'vue';
   import Modal from '@/components/Modal.vue';
   import BotonBase from '@/components/BotonBase.vue';
+  import { useModal } from '@/composables/useModal';
+  import { useAutenticacion } from '@/composables/useAutenticacion';
 
-  const router = useRouter();
-  
-  //Estado para controlar la visibilidad de cada modal
-  const modalAbierto = ref(false);
-  const modalTipo = ref(''); //alerta, token, validar
-  const tokenGenerado = ref('');
-  const tokenIngresado = ref('');
-  const mensajeAlerta = ref('');
-  const mensajeValidacion = ref('');
+//Composables (logica)
+const { tokenGenerado, generarToken, validarToken, redirigirAPanel } = useAutenticacion();
+const { modalAbierto, modalTipo, tituloModal, mensajeValidacion, mostrarModal, cerrarModal } = useModal();
+//Estado 
+const tokenIngresado = ref('');
 
-  //Titulo del modal segun el tipo
-  const tituloModal = computed(() => {
-    switch (modalTipo.value) {
-      case 'alerta': return 'Aviso';
-      case 'token': return 'Generación de Token';
-      case 'validar': return 'Validación';
-      default: return 'Modal'
-    }
-  });
-
-  //Funciones para abrir los modales
-  const mostrarAlerta = (mensaje) => {
-    mensajeAlerta.value = mensaje;
-    modalTipo.value = 'alerta';
-    modalAbierto.value = true;
+//Acciones
+  const mostrarGenerarToken = () => {
+    generarToken();
+    mostrarModal('token');
   };
 
-  const mostrarToken = () => {
-    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let resultado = '';
-
-    for (let i = 0; i < 20; i++) {
-      resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
-    }
-    tokenGenerado.value = resultado;
-    modalTipo.value = 'token';
-    modalAbierto.value = true;
-  };
-
-  const mostrarValidarToken = () => {
+  const mostrarInicioSesion = () => {
     tokenIngresado.value = '';
     mensajeValidacion.value = '';
-    modalTipo.value = 'validar';
-    modalAbierto.value = true;
+    mostrarModal('validar');
   };
 
-  //Funciones de acción
   const copiarToken = () => {
     navigator.clipboard.writeText(tokenGenerado.value).then(() => {
       alert("Token copiado en el portapapeles");
     });
   };
 
-  const validarToken = () => {
-    if (tokenIngresado.value === tokenGenerado.value) {
-      // Guardar el estado de autenticación
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userToken', tokenGenerado.value);
-      
-      modalTipo.value = 'alerta';
-      mensajeAlerta.value = '¡Token válido! Acceso concedido. Redirigiendo...';
-
-      //Redirigir al panel
-    setTimeout(() => {  
-      cerrarModal();
-      router.push({name: 'panel'});
+  const validacionToken = () => {
+    if (validarToken(tokenIngresado.value)) {
+      mensajeValidacion.value = '¡Token válido! Acceso concedido. Redirigiendo...';
+      setTimeout(() => {
+        cerrarModal();
+        redirigirAPanel();
       }, 1500);
-    }else{
-      mensajeValidacion.value = 'Token inválido. Inténtalo de nuevo.'
+    } else {
+      mensajeValidacion.value = 'Token inválido. Inténtalo de nuevo.';
     }
-  };
-
-  const cerrarModal = () => {
-    modalAbierto.value = false;
   };
 </script>
 
@@ -91,21 +52,26 @@
 
     <!-- Sección del login -->
     <div class="right">
-      <h1 class="title">BIENVENIDO</h1>
-      <p></p>
-      <p></p>
-      <p></p>
-      <BotonBase tipo="secundario" tamano="grande" @click="mostrarValidarToken">
-        Iniciar Sesión
-      </BotonBase>
-      <div class="divider">
-        <hr class="line" />
-        <span class="text">o</span>
-        <hr class="line" />
+
+      <div class="contenedor espacio">
+        <h1 class="title">BIENVENIDO</h1>
+        <div class="contenedor">
+          
+          <BotonBase tipo="secundario" tamano="grande" class="ancho" @click="mostrarInicioSesion">
+            Iniciar Sesión
+          </BotonBase>
+          
+          <div class="divider">
+            <hr class="line" />
+            <span class="text">o</span>
+            <hr class="line" />
+          </div>
+    
+          <BotonBase tipo="primario" tamano="grande" class="ancho" @click="mostrarGenerarToken">
+            Generar Token
+          </BotonBase>
+        </div>      
       </div>
-      <BotonBase tipo="primario" tamano="grande" @click="mostrarToken">
-        Generar Token
-      </BotonBase>
 
     </div> <!--fin div sección derecha -->
 
@@ -124,25 +90,22 @@
           para proteger la seguridad de la cuenta.</p>
         </template>
 
-        <template v-else-if="modalTipo === 'validar'">
-          <p>Ingresa el token: </p>
+        <template v-else="modalTipo === 'validar'">
+          <p>Ingrese el token: </p>
           <input 
           v-model="tokenIngresado" 
           type="text" 
           placeholder="Ingresa tu token aquí"/>
           <p v-if="mensajeValidacion">{{ mensajeValidacion }}</p>
-      </template>
-
-      <template v-else-if="modalTipo === 'alerta'">
+        </template>
+      <!-- <template v-else-if="modalTipo === 'alerta'">
         <p>{{ mensajeAlerta }}</p>
-      </template>
-
+      </template> -->
       <template #footer>
         <template v-if="modalTipo === 'validar'">
-          <BotonBase tipo = "primario" @click = "validarToken">Validar</BotonBase>
-          <BotonBase tipo = "cancelar" @click = "cerrarModal" >Cancelar</BotonBase>
+          <BotonBase tipo = "primario"  @click = "validacionToken">Validar</BotonBase>
+          <BotonBase tipo = "cancelar"  @click = "cerrarModal" >Cancelar</BotonBase>
         </template>
-
         <template v-else-if="modalTipo === 'token'">
           <BotonBase tipo = "primario" @click = "copiarToken">Copiar</BotonBase>
           <BotonBase tipo = "cancelar" @click = "cerrarModal" >Cerrar</BotonBase>
@@ -176,16 +139,6 @@
 .right {
   flex-direction: column;
   background: #f4f4f4;
-  padding: 40px;
-}
-
-.overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 47.5%;
-  height: 100%;
-  background-color: rgba(191, 223, 234, 49%); 
 }
 
 .title {

@@ -1,3 +1,10 @@
+<script setup>
+  import GraficaLinea from '@/components/GraficaLinea.vue';
+  import GraficaPastel from '@/components/GraficaPastel.vue';
+  //import BatteryIcon from "@/components/BatteryIcon.vue";
+  
+</script>
+
 <template>
     <div class="contenedorGral">
       <div class="encabezado sombra">
@@ -14,7 +21,7 @@
         <div class="grid">
           <div class="card g1">
             <h2 class="subtitle">ENERGÍA POR HORA</h2>
-            <GraficaLinea />
+            <!-- <GraficaLinea /> -->
           </div>
           
           <div class="card g2">
@@ -43,18 +50,6 @@
       </div> <!-- fin div panel -->
     </div>
 </template>
-  
-<script>
-  import GraficaLinea from '@/components/GraficaLinea.vue';
-  import GraficaPastel from '@/components/GraficaPastel.vue';
-  //import BatteryIcon from "@/components/BatteryIcon.vue";
-  export default {
-  components: {
-    GraficaLinea,
-    GraficaPastel
-  }
-}
-</script>
   
 <style>
   body {

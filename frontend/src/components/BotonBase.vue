@@ -83,15 +83,15 @@ const manejarClic = () => {
 
 /* Estilos según el tamaño del botón  */
 .tamano-pequeno {
-  padding: 4px 12px;
+  padding: 5px 14px;
   font-size: 12px;
 }
 .tamano-normal {
-  padding: 8px 16px;
+  padding: 10px 18px;
   font-size: 14px;
 }
 .tamano-grande {
-  padding: 12px 24px;
+  padding: 12px 26px;
   font-size: 16px;
 }
 
