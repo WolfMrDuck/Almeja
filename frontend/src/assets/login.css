@@ -1,0 +1,132 @@
+/* Diseño principal */
+.container {
+    display: flex;
+    height: 100vh;
+    padding: 0;
+  }
+  
+.left, .right {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+.left img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+.right {
+    flex-direction: column;
+    background: #f4f4f4;
+  }
+  
+.titulo {
+    font-size: 52px;
+    font-family: Arial;
+    font-weight: bold;
+    color: #006B9F;
+    margin-bottom: 20px;
+  }
+  
+.divider {
+    display: flex;
+    align-items: center;
+    width: 250px;
+    margin-bottom: 16px;
+    margin-top: 16px;
+  }
+  
+.line {
+    flex-grow: 1;
+    border: none;
+    height: 1px;
+    background-color: #ccc;
+}
+  
+.text {
+    margin: 0 10px;
+    color: #666;
+}
+  
+input{
+      max-width: 100%;
+      height: 20px;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      background-color: rgba(88, 180, 225, 0.262);
+      font-size: 18px;
+      color: var(--color-primario);
+    }
+
+.ancho{
+        width: 100%;
+    }
+    
+.contenedor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+    
+.espacio {
+    gap: 50px;
+}  
+
+/*Media queries para versión móvil*/
+@media screen and (max-width: 768px) {
+    .container{
+        flex-direction: column;
+        position: relative;
+    }
+    .left{
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+    }
+    .right{
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        position: relative;
+        z-index: 2;
+        justify-content: center;
+    }
+
+    .contenedor.espacio {
+        background-color: #f4f4f4;
+        border-radius: 8px;
+        padding: 35px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        margin: 0;
+    }
+
+    .titulo{
+        font-size: 36px;
+        margin-bottom: 25px;
+    }
+
+    .divider{
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+}
+
+/*Media queries para pantallas más pequeñas*/
+@media screen and (max-width: 480px) {
+    .contenedor.espacio{
+        padding: 25px 20px;
+        max-width: 85%;
+    }
+
+    .titulo{
+        font-size: 32px;
+        margin-bottom: 20px;
+    }
+}

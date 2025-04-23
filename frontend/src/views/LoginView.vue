@@ -4,6 +4,7 @@
   import BotonBase from '@/components/BotonBase.vue';
   import { useModal } from '@/composables/useModal';
   import { useAutenticacion } from '@/composables/useAutenticacion';
+  import '@/assets/login.css' //Estilos de esta pantalla
 
 //Composables (logica)
 const { tokenGenerado, generarToken, validarToken, redirigirAPanel } = useAutenticacion();
@@ -54,7 +55,7 @@ const tokenIngresado = ref('');
     <div class="right">
 
       <div class="contenedor espacio">
-        <h1 class="title">BIENVENIDO</h1>
+        <h1 class="titulo">BIENVENIDO</h1>
         <div class="contenedor">
           
           <BotonBase tipo="secundario" tamano="grande" class="ancho" @click="mostrarInicioSesion">
@@ -114,70 +115,3 @@ const tokenIngresado = ref('');
     </Modal>
   </div>
 </template>
-
-<style scoped>
-/* Diseño principal */
-.container {
-  display: flex;
-  height: 100vh;
-  padding: 0;
-}
-
-.left, .right {
-  width: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.left img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.right {
-  flex-direction: column;
-  background: #f4f4f4;
-}
-
-.title {
-  font-size: 52px;
-  font-family: Arial;
-  font-weight: bold;
-  color: #006B9F;
-  margin-bottom: 20px;
-}
-
-.divider {
-  display: flex;
-  align-items: center;
-  width: 250px;
-  margin-bottom: 16px;
-  margin-top: 16px;
-}
-
-.line {
-  flex-grow: 1;
-  border: none;
-  height: 1px;
-  background-color: #ccc;
-}
-
-.text {
-  margin: 0 10px;
-  color: #666;
-}
-
-input{
-    max-width: 100%;
-    height: 20px;
-    border: none;
-    border-radius: 8px;
-    padding: 10px;
-    background-color: rgba(88, 180, 225, 0.262);
-    font-size: 18px;
-    color: var(--color-primario);
-  }
-  
-</style>
