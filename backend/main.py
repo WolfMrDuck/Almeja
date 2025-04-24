@@ -1,6 +1,4 @@
-def main():
-    print("Hello from backend!")
+from database import create_db
 
+create_db()
 
-if __name__ == "__main__":
-    main()
