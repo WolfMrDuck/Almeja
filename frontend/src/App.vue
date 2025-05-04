@@ -5,6 +5,6 @@ import Panel from './views/Panel.vue';
 
 <template>
     <!-- <LoginView /> -->
-    <!-- <Panel/>  -->
-    <router-view/>
+    <Panel/> 
+    <!-- <router-view/> -->
 </template>
