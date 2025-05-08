@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field, Relationship, TIMESTAMP, Column, text
 from datetime import datetime
 
 class Source(SQLModel):
@@ -25,7 +25,11 @@ class Battery(Source, table=True):
 class Measure(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     source_current: float | None = None
-    date: datetime
+    date: datetime | None = Field(sa_column=Column(
+        TIMESTAMP(timezone=True),
+        nullable=False,
+        server_default=text("CURRENT_TIMESTAMP")
+        ))
 
     solar_id: int | None = Field(default=None, foreign_key="solar.id")
     solar: Solar | None = Relationship(back_populates="measure", sa_relationship_kwargs={'uselist': False})

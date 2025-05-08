@@ -1,2 +1,8 @@
 db_url = "sqlite:///db.sqlite"
-db_echo = true
+db_echo = false
+
+serial_port = "/dev/ttyUSB0"
+serial_baudrate = 115200
+serial_timeout = 1
+
+logging_level = "INFO"
