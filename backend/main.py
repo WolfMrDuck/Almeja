@@ -33,4 +33,4 @@ app = FastAPI()
 @app.get("/")
 def testo():
     payload = json.dumps(data)
-    return payload
+    return data
