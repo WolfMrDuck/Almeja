@@ -1,3 +1,11 @@
+# Project files
+db.sqlite3
+.python-version
+.txt
+
+# Ignore dynaconf secret files
+.secrets.*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
