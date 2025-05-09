@@ -1,7 +1,7 @@
 from database import create_db
 from ingester import start_ingest
 from fastapi import FastAPI
-import json
+from fastapi.middleware.cors import CORSMiddleware
 
 #create_db()
 #start_ingest()
@@ -30,7 +30,13 @@ data = {
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.get("/")
 def testo():
-    payload = json.dumps(data)
-    return payload
+    return data
