@@ -1,5 +1,5 @@
 <script setup>
-  import { onMounted, computed } from 'vue';
+  import { onMounted, onUnmounted } from 'vue';
   import GraficaLinea from '@/components/GraficaLinea.vue';
   import GraficaPastel from '@/components/GraficaPastel.vue';
   import { useSensoresStore } from '@/stores/sensoresStore';
@@ -8,8 +8,19 @@
 
   const sensoresStore = useSensoresStore();
 
+  const actualizarDatos = async() => {
+    await sensoresStore.cargarDatos();
+  }
+
+  let intervalo 
+
   onMounted(() => {
-    sensoresStore.cargarDatos()
+    actualizarDatos()
+    intervalo = setInterval (actualizarDatos, 60_000)
+  })
+
+  onUnmounted(() => {
+    clearInterval(intervalo)
   })
 
   const voltajeSolar = sensoresStore.ultimosDatos.find(v => v.titulo.includes('Voltaje Solar'))
@@ -107,7 +118,7 @@
           
           <div class="card g3">
             <div class="contenedor_panel">
-              <BotonBase tipo="primario" tamano="grande">
+              <BotonBase tipo="primario" tamano="grande" @click="actualizarDatos">
                 Actualizar
               </BotonBase>  
             </div>
@@ -124,7 +135,7 @@
           
           <div class="card g5">
             <div class="contenedor_panel">
-              <BotonBase tipo="primario" tamano="grande">
+              <BotonBase tipo="primario" tamano="grande" @click="actualizarDatos">
                 Actualizar
               </BotonBase>  
             </div>
