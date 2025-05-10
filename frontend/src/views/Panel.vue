@@ -1,15 +1,25 @@
 <script setup>
-  import { onMounted, onUnmounted } from 'vue';
+  import { onMounted, onUnmounted, computed } from 'vue';
   import GraficaLinea from '@/components/GraficaLinea.vue';
   import GraficaPastel from '@/components/GraficaPastel.vue';
   import { useSensoresStore } from '@/stores/sensoresStore';
+  import { storeToRefs } from 'pinia';
   import BotonBase from '@/components/BotonBase.vue';
   import "@/assets/panel.css"
 
   const sensoresStore = useSensoresStore();
+  const { ultimosDatos } = storeToRefs(sensoresStore);
+
+  const voltajeSolar = computed(() =>
+    ultimosDatos.value.find(v => v.nombre.includes('Voltaje Solar'))
+  );
+  const corrienteFuente = computed (() => 
+    ultimosDatos.value.find(v => v.nombre.includes('Corriente Fuente'))
+  );
 
   const actualizarDatos = async() => {
     await sensoresStore.cargarDatos();
+    console.log("Ultimos datos actualizados:", ultimosDatos.value);
   }
 
   let intervalo 
@@ -22,10 +32,7 @@
   onUnmounted(() => {
     clearInterval(intervalo)
   })
-
-  const voltajeSolar = sensoresStore.ultimosDatos.find(v => v.titulo.includes('Voltaje Solar'))
-  const corrienteFuente = sensoresStore.ultimosDatos.find(v => v.titulo.includes('Corriente Fuente'))
-   
+ 
 </script>
 
 <template>
@@ -66,7 +73,7 @@
                 class="lucide lucide-zap-icon lucide-zap">
                 <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>
               </svg>
-              <p class="datos">{{voltajeSolar.valor}} {{ voltajeSolar.unidad }}</p>
+              <p class="datos">{{voltajeSolar.valor ?? '---'}} {{ voltajeSolar.unidad ?? ''}}</p>
             </div>
 
             <div class="card sombra-card icono">
@@ -86,7 +93,7 @@
                 <path d="M5 8h14"/>
                 <path d="M6 11V8h12v3a6 6 0 1 1-12 0Z"/>
               </svg>
-              <p class="datos">{{corrienteFuente.valor}} {{ corrienteFuente.unidad }}</p>
+              <p class="datos">{{corrienteFuente.valor ?? '---'}} {{ corrienteFuente.unidad ?? '' }}</p>
             </div>
             <div class="card icono">
               <BotonBase tipo="primario" tamano="grande" @click="actualizarDatos">

@@ -84,31 +84,37 @@ export const useSensoresStore = defineStore ('sensores', {
 
         ultimosDatos: (state) => {
             //Funcion para obtener el ultimo valor de los arreglos
-            const obtenerUltimo = arr => arr.length > 0 ? arr[arr.length - 1] : 0;
-        
+            const obtenerUltimo = arr => {
+                for (let i = arr.length - 1; i >= 0; i--) {
+                    if (arr[i] !== null && arr[i] !== undefined) {
+                        return arr[i];
+                    }
+                }
+                return 0;
+            };        
             return [
                 {
-                    titulo: 'Voltaje Solar',
+                    nombre: 'Voltaje Solar',
                     valor: obtenerUltimo(state.mediciones.voltajes.solar),
                     unidad: 'V'
                 },
                 {
-                    titulo: 'Voltaje Eólico',
+                    nombre: 'Voltaje Eólico',
                     valor: obtenerUltimo(state.mediciones.voltajes.eolica),
                     unidad: 'V'
                 },
                 {
-                    titulo: 'Voltaje Baterias',
+                    nombre: 'Voltaje Baterias',
                     valor: obtenerUltimo(state.mediciones.voltajes.baterias),
                     unidad: 'V'
                 },
                 {
-                    titulo: 'Corriente Fuente',
+                    nombre: 'Corriente Fuente',
                     valor: obtenerUltimo(state.mediciones.corrientes.fuente),
                     unidad: 'A'
                 },
                 {
-                    titulo: 'Corriente Baterias',
+                    nombre: 'Corriente Baterias',
                     valor: obtenerUltimo(state.mediciones.corrientes.baterias),
                     unidad: 'A'
                 }
@@ -152,7 +158,7 @@ export const useSensoresStore = defineStore ('sensores', {
                     // Si hay más datos que etiquetas, hacer un submuestreo
                     const resultado = [];
                     const salto = arreglo.length / longitudEtiquetas;
-                    for (let i = 0; i <= longitudEtiquetas; i++) {
+                    for (let i = 0; i < longitudEtiquetas; i++) {
                         const indice = Math.floor(i * salto);
                         resultado.push(arreglo[indice]);
                     }
@@ -185,9 +191,14 @@ export const useSensoresStore = defineStore ('sensores', {
             console.log("Etiquetas generadas:", this.etiquetasTiempo);
 
             //Cálculo de una hora antes: set-> modifica hora de un objeto Date, get-> trae la hora
+            // const horaAnterior = new Date();
+            // horaAnterior.setHours(horaAnterior.getHours() - 1)
+            // console.log(horaAnterior);
+
             const horaAnterior = new Date();
-            horaAnterior.setHours(horaAnterior.getHours() - 1)
-            console.log(horaAnterior);
+            horaAnterior.setDate(horaAnterior.getDate() - 1);
+            horaAnterior.setHours(horaAnterior.getHours() - 2);
+
 
             try {
 
@@ -198,12 +209,15 @@ export const useSensoresStore = defineStore ('sensores', {
                 }
                 //Convertimos la respuesta a json
                 const datos = await respuesta.json();
+                console.log("Datos recibidos:", datos);
                 
                 // Procesar los datos según la estructura de la API
                 this.procesarDatos(datos);
 
                 // Normalizar datos para que coincidan con las etiquetas
                 this.normalizarDatos();
+
+                console.log("mediciones normalizadas: ",this.mediciones)
 
                 this.error = null;
 
