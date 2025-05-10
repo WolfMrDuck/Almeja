@@ -18,38 +18,37 @@ export const useSensoresStore = defineStore ('sensores', {
                 sensor3: []
             }
         },
+        etiquetasTiempo:[],
         cargando: false,
         error: null,
-        apiURL: 'http://url-api/datos'
+        apiURL: 'http://localhost:8080/measures/'
     }),//Fin de los estados (datos que se manejan globalmente)
 
     getters: {
 
-        etiquetasVoltajes: (state) => {
-            //suponiendo que todos los datos tendrán la misma hora y orden de registro:
-            //de ser así, entonces basta con usar las etiquetas de una fuente.
-            state.mediciones.voltajes.solar.map(v => v.tiempo)
+        etiquetasGrafica: (state) => {
+            return state.etiquetasTiempo;
         },
 
         //Para voltajes...
         datosVoltajes: (state) => [
             {
                 label: 'Fuente Solar (V)',
-                data: state.mediciones.voltajes.solar.map(v => v.valor),
+                data: state.mediciones.voltajes.solar,
                 borderColor: 'rgb(200, 181, 54)',
                 backgroundColor: 'rgba(200, 181, 54, 0.1)',
                 tension: 0.1
             },
             {
                 label: 'Fuente Eólica (V)',
-                data: state.mediciones.voltajes.eolica.map(v => v.valor),
+                data: state.mediciones.voltajes.eolica,
                 borderColor: 'rgb(99, 182, 255)',
                 backgroundColor: 'rgba(99, 182, 255, 0.1)',
                 tension: 0.1
             },
             {
                 label: 'Banco de Baterías (V)',
-                data: state.mediciones.voltajes.baterias.map(v => v.valor),
+                data: state.mediciones.voltajes.baterias,
                 borderColor: 'rgb(54, 235, 166)',
                 backgroundColor: 'rgba(54, 235, 166, 0.1)',
                 tension: 0.1
@@ -60,21 +59,21 @@ export const useSensoresStore = defineStore ('sensores', {
         datosTemperaturas: (state) => [
             {
                 label: 'Sensor 1 (°C)',
-                data: state.mediciones.temperaturas.sensor1.map(t => t.valor),
+                data: state.mediciones.temperaturas.sensor1,
                 borderColor: 'rgb(54, 235, 166)',
                 backgroundColor: 'rgba(54, 235, 166, 0.1)',
                 tension: 0.1
             },
             {
                 label: 'Sensor 2 (°C)',
-                data: state.mediciones.temperaturas.sensor2.map(t => t.valor),
+                data: state.mediciones.temperaturas.sensor2,
                 borderColor: 'rgb(54, 235, 166)',
                 backgroundColor: 'rgba(54, 235, 166, 0.1)',
                 tension: 0.1
             },
             {
                 label: 'Sensor 3 (°C)',
-                data: state.mediciones.temperaturas.sensor3.map(t => t.valor),
+                data: state.mediciones.temperaturas.sensor3,
                 borderColor: 'rgb(54, 235, 166)',
                 backgroundColor: 'rgba(54, 235, 166, 0.1)',
                 tension: 0.1
@@ -85,37 +84,32 @@ export const useSensoresStore = defineStore ('sensores', {
 
         ultimosDatos: (state) => {
             //Funcion para obtener el ultimo valor de los arreglos
-            const obtenerUltimo = arr => arr.at(-1) ?? {valor: 0, tiempo: '--'}
+            const obtenerUltimo = arr => arr.length > 0 ? arr[arr.length - 1] : 0;
         
             return [
                 {
                     titulo: 'Voltaje Solar',
-                    valor: obtenerUltimo(state.mediciones.voltajes.solar).valor,
-                    hora: obtenerUltimo(state.mediciones.voltajes.solar).tiempo,
+                    valor: obtenerUltimo(state.mediciones.voltajes.solar),
                     unidad: 'V'
                 },
                 {
                     titulo: 'Voltaje Eólico',
-                    valor: obtenerUltimo(state.mediciones.voltajes.eolica).valor,
-                    hora: obtenerUltimo(state.mediciones.voltajes.eolica).tiempo,
+                    valor: obtenerUltimo(state.mediciones.voltajes.eolica),
                     unidad: 'V'
                 },
                 {
                     titulo: 'Voltaje Baterias',
-                    valor: obtenerUltimo(state.mediciones.voltajes.baterias).valor,
-                    hora: obtenerUltimo(state.mediciones.voltajes.baterias).tiempo,
+                    valor: obtenerUltimo(state.mediciones.voltajes.baterias),
                     unidad: 'V'
                 },
                 {
                     titulo: 'Corriente Fuente',
-                    valor: obtenerUltimo(state.mediciones.corrientes.fuente).valor,
-                    hora: obtenerUltimo(state.mediciones.corrientes.fuente).tiempo,
+                    valor: obtenerUltimo(state.mediciones.corrientes.fuente),
                     unidad: 'A'
                 },
                 {
                     titulo: 'Corriente Baterias',
-                    valor: obtenerUltimo(state.mediciones.corrientes.baterias).valor,
-                    hora: obtenerUltimo(state.mediciones.corrientes.baterias).tiempo,
+                    valor: obtenerUltimo(state.mediciones.corrientes.baterias),
                     unidad: 'A'
                 }
 
@@ -125,16 +119,79 @@ export const useSensoresStore = defineStore ('sensores', {
     },//Fin de los getters
 
     actions: {
+
+        generarEtiquetasTiempo(numIntervalos){
+            const horaActual = new Date();
+            const horaAnt = new Date(horaActual.getTime() - 60 * 60 * 1000);
+            
+            const intervaloTiempo = (horaActual.getTime() - horaAnt.getTime()) / (numIntervalos - 1);
+
+            const etiquetas = [];
+            for (let index = 0; index < numIntervalos; index++) {
+                const tiempoPunto = new Date(horaAnt.getTime() + intervaloTiempo * index);
+                const horas = tiempoPunto.getHours().toString().padStart(2, '0');
+                const minutos = tiempoPunto.getMinutes().toString().padStart(2, '0');
+                etiquetas.push(`${horas}:${minutos}`)
+                console.log(`Etiqueta ${index}: ${horas}:${minutos}`);
+
+            }
+            this.etiquetasTiempo = etiquetas;
+        },
+
+        normalizarDatos() {
+            const longitudEtiquetas = this.etiquetasTiempo.length;
+
+            const normalizarArreglo = (arreglo) => {
+                if (arreglo.length === 0) {
+                    // Si no hay datos, rellenar con ceros
+                    return Array(longitudEtiquetas).fill(0);
+                } else if (arreglo.length < longitudEtiquetas) {
+                    // Si hay menos datos que etiquetas, rellenar con valores nulos
+                    return [...arreglo, ...Array(longitudEtiquetas - arreglo.length).fill(null)]
+                } else if (arreglo.length > longitudEtiquetas) {
+                    // Si hay más datos que etiquetas, hacer un submuestreo
+                    const resultado = [];
+                    const salto = arreglo.length / longitudEtiquetas;
+                    for (let i = 0; i <= longitudEtiquetas; i++) {
+                        const indice = Math.floor(i * salto);
+                        resultado.push(arreglo[indice]);
+                    }
+                    return resultado;
+                }
+                // Si la longitud es correcta, devolver el arreglo original
+                return arreglo;
+            };
+            // Normalizar todos los arreglos de datos
+            // Voltajes
+            this.mediciones.voltajes.solar = normalizarArreglo(this.mediciones.voltajes.solar);
+            this.mediciones.voltajes.eolica = normalizarArreglo(this.mediciones.voltajes.eolica);
+            this.mediciones.voltajes.baterias = normalizarArreglo(this.mediciones.voltajes.baterias);
+            
+            // Corrientes
+            this.mediciones.corrientes.fuente = normalizarArreglo(this.mediciones.corrientes.fuente);
+            this.mediciones.corrientes.baterias = normalizarArreglo(this.mediciones.corrientes.baterias);
+            
+            // Temperaturas
+            this.mediciones.temperaturas.sensor1 = normalizarArreglo(this.mediciones.temperaturas.sensor1);
+            this.mediciones.temperaturas.sensor2 = normalizarArreglo(this.mediciones.temperaturas.sensor2);
+            this.mediciones.temperaturas.sensor3 = normalizarArreglo(this.mediciones.temperaturas.sensor3);
+        },
+
         async cargarDatos(){
             this.cargando = true;
+
+            // Generar las etiquetas de tiempo al cargar los datos
+            this.generarEtiquetasTiempo(12);
+            console.log("Etiquetas generadas:", this.etiquetasTiempo);
 
             //Cálculo de una hora antes: set-> modifica hora de un objeto Date, get-> trae la hora
             const horaAnterior = new Date();
             horaAnterior.setHours(horaAnterior.getHours() - 1)
+            console.log(horaAnterior);
 
             try {
 
-                const respuesta = await fetch(`${this.apiURL}?from=${horaAnterior.toISOString()}`);
+                const respuesta = await fetch(`${this.apiURL}?start_date=${horaAnterior.toISOString()}`);
                 //Verificamos si fue exitosa la respuesta
                 if (!respuesta.ok) {
                     throw new Error('Error al obtener los datos');
@@ -142,7 +199,11 @@ export const useSensoresStore = defineStore ('sensores', {
                 //Convertimos la respuesta a json
                 const datos = await respuesta.json();
                 
+                // Procesar los datos según la estructura de la API
                 this.procesarDatos(datos);
+
+                // Normalizar datos para que coincidan con las etiquetas
+                this.normalizarDatos();
 
                 this.error = null;
 
@@ -156,19 +217,16 @@ export const useSensoresStore = defineStore ('sensores', {
         },
 
         procesarDatos(datos) {
-            //suponiendo que el json tendrá una forma parecida al state y los datos podrían ser así:
-            //"solar": [{"valor":3.1, "tiempo":"10:00"},{"valor":3.1, "tiempo":"10:00"}...]
-            this.mediciones.voltajes.solar = datos.voltmeters.solar.map(item => ({ valor: item.valor, tiempo: item.tiempo }));
-            this.mediciones.voltajes.eolica = datos.voltmeters.wind.map(item => ({ valor: item.valor, tiempo: item.tiempo }));
-            this.mediciones.voltajes.baterias = datos.voltmeters.baterias.map(item => ({ valor: item.valor, tiempo: item.tiempo }));
+            this.mediciones.voltajes.solar = datos.voltmeters.solar;
+            this.mediciones.voltajes.eolica = datos.voltmeters.wind;
+            this.mediciones.voltajes.baterias = datos.voltmeters.battery;
 
-            this.mediciones.corrientes.fuente = datos.ammeters.source.map(item => ({ valor: item.valor, tiempo: item.tiempo }));
-            this.mediciones.corrientes.baterias = datos.ammeters.batt.map(item => ({ valor: item.valor, tiempo: item.tiempo }));
+            this.mediciones.corrientes.fuente = datos.ammeters.source;
+            this.mediciones.corrientes.baterias = datos.ammeters.battery;
 
-            this.mediciones.temperaturas.sensor1 = datos.thermometers.therm1.map(item => ({ valor: item.valor, tiempo: item.tiempo }));
-            this.mediciones.temperaturas.sensor2 = datos.thermometers.therm2.map(item => ({ valor: item.valor, tiempo: item.tiempo }));
-            this.mediciones.temperaturas.sensor3 = datos.thermometers.therm3.map(item => ({ valor: item.valor, tiempo: item.tiempo }));
+            this.mediciones.temperaturas.sensor1 = datos.thermometers.temp1;
+            this.mediciones.temperaturas.sensor2 = datos.thermometers.temp2;
+            this.mediciones.temperaturas.sensor3 = datos.thermometers.temp3;
         }
     }//Fin de actions
-
 })

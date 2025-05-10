@@ -26,7 +26,6 @@
   const voltajeSolar = sensoresStore.ultimosDatos.find(v => v.titulo.includes('Voltaje Solar'))
   const corrienteFuente = sensoresStore.ultimosDatos.find(v => v.titulo.includes('Corriente Fuente'))
    
-
 </script>
 
 <template>
@@ -89,28 +88,18 @@
               </svg>
               <p class="datos">{{corrienteFuente.valor}} {{ corrienteFuente.unidad }}</p>
             </div>
-
-            <div class="card sombra-card icono">
-              <svg xmlns="http://www.w3.org/2000/svg" 
-                width="32" 
-                height="32" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="#006b9f" 
-                stroke-width="1.5" 
-                stroke-linecap="round" 
-                stroke-linejoin="round" 
-                class="lucide lucide-thermometer-icon lucide-thermometer">
-                <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>
-              </svg>
-              <p class="datos">Temp</p>
+            <div class="card icono">
+              <BotonBase tipo="primario" tamano="grande" @click="actualizarDatos">
+                  Actualizar
+              </BotonBase> 
             </div>
+
           </div>
 
           <div class="card sombra-card g2">
             <!-- <h2 class="subtitle">Grafica voltajes</h2> -->
             <GraficaLinea
-              :etiquetas="sensoresStore.etiquetasVoltajes"
+              :etiquetas="sensoresStore.etiquetasGrafica"
               :datasets="sensoresStore.datosVoltajes"
               titulo="Voltajes (última hora)"
             />
@@ -118,16 +107,14 @@
           
           <div class="card g3">
             <div class="contenedor_panel">
-              <BotonBase tipo="primario" tamano="grande" @click="actualizarDatos">
-                Actualizar
-              </BotonBase>  
+               
             </div>
           </div>
           
           <div class="card sombra-card g4">
             <!-- <h2 class="subtitle">Temperaturas de Banco de Baterías</h2> -->
             <GraficaLinea
-              :etiquetas="sensoresStore.etiquetasVoltajes"
+              :etiquetas="sensoresStore.etiquetasGrafica"
               :datasets="sensoresStore.datosTemperaturas"
               titulo="Temperaturas (última hora)"
             />
@@ -135,9 +122,21 @@
           
           <div class="card g5">
             <div class="contenedor_panel">
-              <BotonBase tipo="primario" tamano="grande" @click="actualizarDatos">
-                Actualizar
-              </BotonBase>  
+                <div class="card sombra-card icono">
+                  <svg xmlns="http://www.w3.org/2000/svg" 
+                    width="32" 
+                    height="32" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="#006b9f" 
+                    stroke-width="1.5" 
+                    stroke-linecap="round" 
+                    stroke-linejoin="round" 
+                    class="lucide lucide-thermometer-icon lucide-thermometer">
+                    <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>
+                  </svg>
+                  <p class="datos">Temp</p>
+              </div>
             </div>
           </div>
         </div> <!-- Fin div grid -->
