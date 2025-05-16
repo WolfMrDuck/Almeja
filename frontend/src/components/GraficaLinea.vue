@@ -85,15 +85,22 @@ import { ref, watch } from 'vue';
 </script>
 
 <template>
-   <div class="contenedorGrafica">
-    <Line :data="datosGrafica" :options="opcionesGrafica"/>
-   </div>
+    <div class="grafica">
+      <Line :data="datosGrafica" :options="opcionesGrafica"/>
+    </div>
 </template>
 
 <style>
- .contenedorGrafica{
+.grafica {
     width: 100%;
-    height: 100%;
-    margin: 0 auto;
- }
+    min-height: 250px;
+    height: auto;
+}
+
+@media screen and (max-width: 768px) {
+  .grafica {
+    min-height: 200px;
+  }
+}
+
 </style>

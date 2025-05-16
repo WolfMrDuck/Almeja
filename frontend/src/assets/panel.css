@@ -1,171 +1,258 @@
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #ffffff;
-    margin: 0;
-    padding: 0;
-  }
-  
   .contenedorGral {
-    padding: 20px;
+    width: 100%;
+    height: 100%;    
+    background-color: var(--color-gris);
+    overflow-x: hidden; /*evita el scroll horizontal*/
   }
-
-  .sombra{ /* www.cssmatic.com/box-shadow  -> para la sombra */
-    box-shadow: 0px 5px 3px -3px rgba(112,112,112,0.59);
-  }
-
-  .sombra-card {
+  .sombra {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
-
-  .encabezado {
-    background: white;
+  .fondoBlanco {
+    background-color: var(--color-blanco);
+  }
+  /*Header principal*/
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    transition: all 0.3s ease;  /* Animación suave */
+    z-index: 1000;
+  }
+  /*header pequeño*/
+.header.pequeno {
+  height: 60px;
+}
+.contenido-header {
     /*border: #006B9F solid;  esto es solo para ver el borde*/
+    height: 100%;
     padding: 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-  }
+}
+/*Menu hamburguesa*/
+.boton-menu{
+  display: none; /*oculto por defecto*/
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  padding: 0;
+}
+.linea{
+  width: 25px;
+  height: 3px;
+  background: var(--color-primario);
+  margin: 5px auto;
+  transition: all 0.3s ease;
+}
 
-  .bienvenida {
-    color: #006B9F;
+/* Animación X */
+.boton-menu.abierto .linea:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.boton-menu.abierto .linea:nth-child(2) {
+  opacity: 0;
+}
+
+.boton-menu.abierto .linea:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/*menu desplegable*/
+.menu-desplegable {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--color-blanco);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+  display: none;
+  min-width: 200px;
+}
+
+.menu-desplegable.activo {
+  display: block;
+}
+
+.lista-menu {
+  list-style: none;
+  padding: 10px 0;
+}
+
+.opcion-menu {
+  padding: 15px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.opcion-menu:hover {
+  background: var(--color-gris);
+  color: var(--color-primario);
+}
+
+
+.bienvenida {
+    color: var(--color-primario);
     font-size: 30px;
     font-weight: bold;
-  }
-
-  .datos {
+    transition: font-size 0.3s ease;
+}
+.header.pequeno .bienvenida{
+  font-size: 25px;
+}
+.datos {
     font-size: 18px;
     color: var(--color-primario);
     font-weight: bold;
-  }
-  
-  .panel {
-    /* border: #006B9F solid;esto es solo para ver el borde */
-    margin-top: 20px;
-    padding: 40px;
-  }
-
-  .contenedor_panel {
+    padding: 0px 10px;
+}
+.cont-temp {
     width: 100%;
     height: 100%;
     justify-content: center;
     align-items: flex-start;
-  }
-
-  .card {
-    /* background: white; */
-    /* border: #006B9F solid;esto es solo para ver el borde */
+}  
+.card {
+    /* border: #006B9F solid;esto es solo para ver el borde */    
     padding: 15px;
     border-radius: 8px;
     display: flex;
     justify-content: center;
     gap: 10px;
-  }
-
-  .icono {
+    box-sizing: border-box;
+}
+.card.grafica-card {
+  min-height: 300px;
+  position: relative;
+  overflow: hidden; /*evita que se desborde el contenido de la grafica*/
+}
+.icono {
     margin: 10px;
     justify-content: space-around;
     align-items: center;
-  }
-  
-  .grid {
+}
+.grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr); /*las columnas miden lo mismo*/
     grid-template-rows: 1fr 2fr 2fr; /*una de las filas es más pequeña que la otra*/
     gap: 15px;
-    margin-top: 20px;
-  }
-
+    margin-top: 80px;
+    padding: 40px;
+    box-sizing: border-box;
+}
   /*Para posicionar los cards*/
-  .g1{
+.g1{
     grid-column: 1/5;
     grid-row: 1/2;
-  }
-  .g2{
+}
+.g2{
     grid-column:1/5;
     grid-row: 2/3;
-  }
-  .g3{
-    grid-column:4/5;
-    grid-row: 2/3;
-  }
-  .g4{
+}
+  
+.g4{
     grid-column:1/4 ;
     grid-row: 3/4;
-  }
-  .g5{
+}
+.g5{
     grid-column:4/5 ;
     grid-row: 3/4;
-  }
+}
 
-  .subtitle {
+.subtitle {
     font-size: 18px;
     font-weight: bold;
     text-align: center;
-  }
+}
   
-  
-.boton-logout{
-    background-color: transparent;
-    border: none;
-    padding: 5px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.boton-logout svg {
-    transition: transform 0.2s, fill 0.3s;
-}
-
-.boton-logout:hover {
-    background-color: var(--color-primario-hover);
-    /*border: var(--color-primario) solid;*/
-    transform: scale(1.1);
-}  
-
-.boton-logout:hover svg {
-    stroke: var(--color-blanco);
-}
-
 /*Media queries*/
-@media screen and (max-width: 768px) {
+@media (max-width: 768px) {
   .grid{
     grid-template-columns: 1fr;
     grid-template-rows: auto;
+    padding: 20px;
+    margin-top: 90px;
+    gap: 20px;
   }
-  .g1, .g2, .g3, .g4, .g5 {
+  .g1, .g2, .g4, .g5 {
     grid-column: 1 / -1;
     grid-row: auto;
   }
-  .panel{
-    padding: 20px;
-  }
+
   .g1{
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 15px;
   }
+
+  .g1 .card {
+    width: 100%;
+    margin: 0;
+  }
+
+  .card.grafica-card {
+    min-height: 250px;
+    width: 100%;
+  }
+
   .icono{
     width: 100%;
     margin: 5px 0;
   }
+
+#boton-logout{
+    display: none;
+}
+.boton-menu{
+    display: block;
+}
+  
 }
 
-@media screen and (max-width: 576px) {
+@media (max-width: 576px) {
   .bienvenida {
-    font-size: 24px;
+    font-size: 20px;
   }
-  .encabezado {
+  .contenido-header {
     padding: 15px;
-    flex-wrap: wrap;
+    gap: 10px;
   }
-  .panel{
+  .grid{
     padding: 15px;
+    gap: 15px;
   }
+
+  .card{
+    padding: 12px;
+  }
+
+  .card.grafica-card {
+    min-height: 200px;
+  }
+
   .icono{
-    width: 100%;
-    flex: none;
-    margin: 5px 0;
+    flex-direction: row;
+    padding: 10px;
   }
+  .icono svg {
+    width: 24px;
+    height: 24px;
+  }
+  .datos {
+    font-size: 14px;
+    padding: 0 5px;
+  }
+  .boton-logout svg {
+    width: 28px;
+    height: 28px;
+  }
+
 }

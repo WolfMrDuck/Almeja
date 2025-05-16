@@ -195,9 +195,10 @@ export const useSensoresStore = defineStore ('sensores', {
             // horaAnterior.setHours(horaAnterior.getHours() - 1)
             // console.log(horaAnterior);
 
+            //Hay que cambiar esto antes de hacer la prueba con la API
             const horaAnterior = new Date();
-            horaAnterior.setDate(horaAnterior.getDate() - 1);
-            horaAnterior.setHours(horaAnterior.getHours() - 2);
+            horaAnterior.setDate(horaAnterior.getDate() - 5);
+            horaAnterior.setHours(horaAnterior.getHours() - 1);
 
 
             try {
