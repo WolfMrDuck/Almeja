@@ -8,14 +8,32 @@ export const useSensoresStore = defineStore ('sensores', {
                 eolica: [],
                 baterias: []
             },
-            corrientes: {
-                fuente: [],
-                baterias: []
-            },
             temperaturas: {
                 sensor1: [],
                 sensor2: [],
                 sensor3: []
+            }
+        },
+        medicionActual: {
+            voltaje: {
+                solar: 0,
+                eolica: 0,
+                baterias: 0
+            },
+            corriente: {
+                fuente: 0,
+                baterias: 0
+            },
+            temperatura: {
+                promedio: 0
+            },
+            bateria: {
+                carga: 0
+            },
+            switches: {
+                solar: false,
+                eolica: false,
+                baterias: false
             }
         },
         etiquetasTiempo:[],
@@ -25,7 +43,6 @@ export const useSensoresStore = defineStore ('sensores', {
     }),//Fin de los estados (datos que se manejan globalmente)
 
     getters: {
-
         etiquetasGrafica: (state) => {
             return state.etiquetasTiempo;
         },
@@ -79,49 +96,37 @@ export const useSensoresStore = defineStore ('sensores', {
                 tension: 0.1
             }
         ],
+
+        fuenteActiva: (state) => {
+            const { solar, eolica, baterias } = state.medicionActual.switches;
             
-       
-
-        ultimosDatos: (state) => {
-            //Funcion para obtener el ultimo valor de los arreglos
-            const obtenerUltimo = arr => {
-                for (let i = arr.length - 1; i >= 0; i--) {
-                    if (arr[i] !== null && arr[i] !== undefined) {
-                        return arr[i];
-                    }
-                }
-                return 0;
-            };        
-            return [
-                {
-                    nombre: 'Voltaje Solar',
-                    valor: obtenerUltimo(state.mediciones.voltajes.solar),
-                    unidad: 'V'
-                },
-                {
-                    nombre: 'Voltaje Eólico',
-                    valor: obtenerUltimo(state.mediciones.voltajes.eolica),
-                    unidad: 'V'
-                },
-                {
-                    nombre: 'Voltaje Baterias',
-                    valor: obtenerUltimo(state.mediciones.voltajes.baterias),
-                    unidad: 'V'
-                },
-                {
-                    nombre: 'Corriente Fuente',
-                    valor: obtenerUltimo(state.mediciones.corrientes.fuente),
-                    unidad: 'A'
-                },
-                {
-                    nombre: 'Corriente Baterias',
-                    valor: obtenerUltimo(state.mediciones.corrientes.baterias),
-                    unidad: 'A'
-                }
-
-            ]
-        }
-
+            if (solar) {
+                return {
+                    nombre: 'Panel Solar',
+                    voltaje: state.medicionActual.voltaje.solar,
+                    corriente: state.medicionActual.corriente.fuente
+                };
+            }
+            if (eolica) {
+                return {
+                    nombre: 'Aerogenerador',
+                    voltaje: state.medicionActual.voltaje.eolica,
+                    corriente: state.medicionActual.corriente.fuente
+                };
+            }
+            if (baterias) {
+                return {
+                    nombre: 'Banco de Baterías',
+                    voltaje: state.medicionActual.voltaje.baterias,
+                    corriente: state.medicionActual.corriente.baterias
+                };
+            }
+            return{
+                nombre: 'Ninguna',
+                voltaje: 0,
+                corriente: 0
+            };
+        },
     },//Fin de los getters
 
     actions: {
@@ -172,11 +177,7 @@ export const useSensoresStore = defineStore ('sensores', {
             this.mediciones.voltajes.solar = normalizarArreglo(this.mediciones.voltajes.solar);
             this.mediciones.voltajes.eolica = normalizarArreglo(this.mediciones.voltajes.eolica);
             this.mediciones.voltajes.baterias = normalizarArreglo(this.mediciones.voltajes.baterias);
-            
-            // Corrientes
-            this.mediciones.corrientes.fuente = normalizarArreglo(this.mediciones.corrientes.fuente);
-            this.mediciones.corrientes.baterias = normalizarArreglo(this.mediciones.corrientes.baterias);
-            
+             
             // Temperaturas
             this.mediciones.temperaturas.sensor1 = normalizarArreglo(this.mediciones.temperaturas.sensor1);
             this.mediciones.temperaturas.sensor2 = normalizarArreglo(this.mediciones.temperaturas.sensor2);
@@ -197,12 +198,10 @@ export const useSensoresStore = defineStore ('sensores', {
 
             //Hay que cambiar esto antes de hacer la prueba con la API
             const horaAnterior = new Date();
-            horaAnterior.setDate(horaAnterior.getDate() - 5);
+            horaAnterior.setDate(horaAnterior.getDate() - 12);
             horaAnterior.setHours(horaAnterior.getHours() - 1);
 
-
             try {
-
                 const respuesta = await fetch(`${this.apiURL}?start_date=${horaAnterior.toISOString()}`);
                 //Verificamos si fue exitosa la respuesta
                 if (!respuesta.ok) {
@@ -210,16 +209,16 @@ export const useSensoresStore = defineStore ('sensores', {
                 }
                 //Convertimos la respuesta a json
                 const datos = await respuesta.json();
-                console.log("Datos recibidos:", datos);
-                
                 // Procesar los datos según la estructura de la API
-                this.procesarDatos(datos);
+                this.mediciones.voltajes.solar = datos.voltmeters.solar;
+                this.mediciones.voltajes.eolica = datos.voltmeters.wind;
+                this.mediciones.voltajes.baterias = datos.voltmeters.battery;
 
+                this.mediciones.temperaturas.sensor1 = datos.thermometers.temp1;
+                this.mediciones.temperaturas.sensor2 = datos.thermometers.temp2;
+                this.mediciones.temperaturas.sensor3 = datos.thermometers.temp3;
                 // Normalizar datos para que coincidan con las etiquetas
                 this.normalizarDatos();
-
-                console.log("mediciones normalizadas: ",this.mediciones)
-
                 this.error = null;
 
             } catch (error) {
@@ -228,20 +227,33 @@ export const useSensoresStore = defineStore ('sensores', {
             } finally {
                 this.cargando = false;
             }
-            
         },
 
-        procesarDatos(datos) {
-            this.mediciones.voltajes.solar = datos.voltmeters.solar;
-            this.mediciones.voltajes.eolica = datos.voltmeters.wind;
-            this.mediciones.voltajes.baterias = datos.voltmeters.battery;
+         async cargarValorActual(){
+            try {
+                const respuesta = await fetch(`${this.apiURL}`); //Cambiar la url
+                if (!respuesta.ok) {
+                    throw new Error('Error al obtener los datos');
+                }
+                const dato = await respuesta.json();
 
-            this.mediciones.corrientes.fuente = datos.ammeters.source;
-            this.mediciones.corrientes.baterias = datos.ammeters.battery;
+                this.medicionActual.voltaje.solar = dato.voltmeters.solar;
+                this.medicionActual.voltaje.eolica = dato.voltmeters.wind;
+                this.medicionActual.voltaje.baterias = dato.voltmeters.battery;
 
-            this.mediciones.temperaturas.sensor1 = datos.thermometers.temp1;
-            this.mediciones.temperaturas.sensor2 = datos.thermometers.temp2;
-            this.mediciones.temperaturas.sensor3 = datos.thermometers.temp3;
+                this.medicionActual.corriente.fuente = dato.ammeters.source;
+                this.medicionActual.corriente.baterias = dato.ammeters.battery;
+
+                this.medicionActual.temperatura.promedio = dato.thermometer.prom;
+                this.medicionActual.bateria.carga = dato.battery;
+
+                this.medicionActual.switches.solar = dato.switch.solar;
+                this.medicionActual.switches.eolica = dato.switch.wind;
+                this.medicionActual.switches.baterias = dato.switch.battery;
+
+            } catch (error) {
+                console.error("Error cargando el valor actual: ", error)
+            }
         }
     }//Fin de actions
 })
