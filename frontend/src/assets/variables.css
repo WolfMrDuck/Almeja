@@ -18,3 +18,8 @@ body {
         padding: 0;
 }
 
+html,body{
+   min-height: 100vh;
+   overflow-y: auto; 
+}
+

@@ -17,6 +17,10 @@ const props = defineProps({
   deshabilitado: {
     type: Boolean,
     default: false
+  },
+  tipoBoton: {
+    type: String,
+    default: 'button'
   }
 });
 
@@ -34,6 +38,7 @@ const manejarClic = () => {
 
 <template>
   <button 
+    :type="tipoBoton"
     class="boton-base" 
     :class="[`tipo-${tipo}`, `tamano-${tamano}`, { 'deshabilitado': deshabilitado }]"
     :disabled="deshabilitado"
