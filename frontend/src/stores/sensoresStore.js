@@ -1,7 +1,12 @@
 import { defineStore } from "pinia";
+import { useApi } from "@/composables/useApi";
 
 export const useSensoresStore = defineStore ('sensores', {
     state: () => ({
+        // Instancia del composable API
+        api: useApi(),
+
+        //Resto de datos
         mediciones: {
             voltajes: {
                 solar: [],
@@ -37,12 +42,16 @@ export const useSensoresStore = defineStore ('sensores', {
             }
         },
         etiquetasTiempo:[],
-        cargando: false,
-        error: null,
-        apiURL: 'http://localhost:8080/measures/'
+        error: null
     }),//Fin de los estados (datos que se manejan globalmente)
 
     getters: {
+
+        //Estados de carga de la API:
+        cargandoAPI: (state) => state.api.cargando.valueOf,
+        errorApi: (state) => state.api.error.value,
+
+        //Etiquetas de tiempo
         etiquetasGrafica: (state) => {
             return state.etiquetasTiempo;
         },
@@ -198,17 +207,13 @@ export const useSensoresStore = defineStore ('sensores', {
 
             //Hay que cambiar esto antes de hacer la prueba con la API
             const horaAnterior = new Date();
-            horaAnterior.setDate(horaAnterior.getDate() - 12);
+            horaAnterior.setDate(horaAnterior.getDate() - 30);
             horaAnterior.setHours(horaAnterior.getHours() - 1);
 
             try {
-                const respuesta = await fetch(`${this.apiURL}?start_date=${horaAnterior.toISOString()}`);
-                //Verificamos si fue exitosa la respuesta
-                if (!respuesta.ok) {
-                    throw new Error('Error al obtener los datos');
-                }
-                //Convertimos la respuesta a json
-                const datos = await respuesta.json();
+                
+                const datos = await this.api.getApi('/measures/', {start_date: horaAnterior.toISOString()} );
+                
                 // Procesar los datos según la estructura de la API
                 this.mediciones.voltajes.solar = datos.voltmeters.solar;
                 this.mediciones.voltajes.eolica = datos.voltmeters.wind;
@@ -231,11 +236,8 @@ export const useSensoresStore = defineStore ('sensores', {
 
          async cargarValorActual(){
             try {
-                const respuesta = await fetch(`${this.apiURL}`); //Cambiar la url
-                if (!respuesta.ok) {
-                    throw new Error('Error al obtener los datos');
-                }
-                const dato = await respuesta.json();
+                
+                const dato = await this.api.getApi('/actual/');
 
                 this.medicionActual.voltaje.solar = dato.voltmeters.solar;
                 this.medicionActual.voltaje.eolica = dato.voltmeters.wind;

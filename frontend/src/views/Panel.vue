@@ -1,16 +1,16 @@
 <script setup>
-  import { onMounted, onUnmounted, computed, ref } from 'vue';
-  import { useRouter } from 'vue-router';
-  import GraficaLinea from '@/components/GraficaLinea.vue';
-  import { useSensoresStore } from '@/stores/sensoresStore';
-  import { useAutenticacionStore } from '@/stores/autenticacionStore';
-  import { storeToRefs } from 'pinia';
-  import BotonBase from '@/components/BotonBase.vue';
-  import ModalAyuda from '@/components/ModalAyuda.vue';
-  import "@/assets/panel.css"
+import { onMounted, onUnmounted, computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useSensoresStore } from '@/stores/sensoresStore';
+import { useAutenticacion } from '@/composables/useAutenticacion';
+import { storeToRefs } from 'pinia';
+import GraficaLinea from '@/components/GraficaLinea.vue';
+import BotonBase from '@/components/BotonBase.vue';
+import ModalAyuda from '@/components/ModalAyuda.vue';
+import "@/assets/panel.css"
 
+const {cerrarSesion} = useAutenticacion();
 const sensores = useSensoresStore();
-const autenticacion = useAutenticacionStore();
 const { fuenteActiva, medicionActual } = storeToRefs(sensores);
 
 const router = useRouter();
@@ -26,12 +26,6 @@ const manejarScroll = () => {
 
 const alternarMenu = () => {
   menuAbierto.value = !menuAbierto.value
-};
-
-const cerrarSesion = () => {
-  autenticacion.logOut();
-  menuAbierto.value = false;
-  router.push('/login')
 };
 
   // Cerrar menú al hacer clic fuera
