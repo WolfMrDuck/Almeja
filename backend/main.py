@@ -1,14 +1,11 @@
 from database import create_db
 from ingester import start_ingest
 from fastapi import FastAPI
-<<<<<<< HEAD
 from fastapi.middleware.cors import CORSMiddleware
-=======
 import json
->>>>>>> wolf-dev
 
-#create_db()
-#start_ingest()
+create_db()
+start_ingest()
 
 data = {
         "voltmeters": {
@@ -34,7 +31,6 @@ data = {
 
 app = FastAPI()
 
-<<<<<<< HEAD
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -44,9 +40,4 @@ app.add_middleware(
 
 @app.get("/")
 def testo():
-=======
-@app.get("/")
-def testo():
-    payload = json.dumps(data)
->>>>>>> wolf-dev
     return data
