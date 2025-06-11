@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import { useSensoresStore } from '@/stores/sensoresStore';
 import { useAutenticacion } from '@/composables/useAutenticacion';
 import { storeToRefs } from 'pinia';
-import GraficaLinea from '@/components/GraficaLinea.vue';
+import LineChart from '@/components/LineChart.vue';
 import BotonBase from '@/components/BotonBase.vue';
 import ModalAyuda from '@/components/ModalAyuda.vue';
 import "@/assets/panel.css"
@@ -164,7 +164,7 @@ onUnmounted(() => {
                 {{fuenteActiva.voltaje}} <span class="unidad">V</span>
               </div>
               <p class="etiqueta-metricas">Voltaje actual</p>
-              <p class="rango-metricas">Rango: 12-14V</p>
+              <p class="rango-metricas">Rango: 12-13V</p>
             </div>
 
             <div class="item-metricas">
@@ -190,16 +190,25 @@ onUnmounted(() => {
                 {{ fuenteActiva.corriente }} <span class="unidad">A</span>
               </div>
               <p class="etiqueta-metricas">Corriente actual</p>
-              <p class="rango-metricas">Rango: 0-10A</p>
+              <p class="rango-metricas">Rango: 0-2A</p>
             </div>
           </div><!-- contenedor de iconos -->
         </div> <!-- fin del datos fuente actual -->
 
         <div class="card sombra fondoBlanco grafica-card g2">
-            <GraficaLinea
-              :etiquetas="sensores.etiquetasGrafica"
-              :datasets="sensores.datosVoltajes"
-              titulo="Voltajes (última hora)"
+          <div class="tiempo-info">
+              <span class="etiqueta-tiempo">Datos de:</span>
+              <span class="rango-tiempo">{{ sensores.rangoHoras }}</span>
+          </div>
+            <LineChart
+              :datasets="[
+                sensores.mediciones.voltajes.solar,
+                sensores.mediciones.voltajes.eolica,
+                sensores.mediciones.voltajes.baterias
+              ]"
+              :series-names="['Solar (V)', 'Eólica (V)', 'Baterías (V)']"
+              title="Voltajes dentro de la última hora"
+              x-axis-type="time-relative"
             />
         </div>
 
@@ -244,10 +253,20 @@ onUnmounted(() => {
         </div><!-- Fin g4 -->
         
         <div class="card sombra fondoBlanco grafica-card g5">
-            <GraficaLinea
-            :etiquetas="sensores.etiquetasGrafica"
-            :datasets="sensores.datosTemperaturas"
-            titulo="Temperaturas (última hora)"
+          <div class="tiempo-info">
+              <span class="etiqueta-tiempo">Datos de:</span>
+              <span class="rango-tiempo">{{ sensores.rangoHoras }}</span>
+          </div>
+            <LineChart
+            :datasets="[
+              sensores.mediciones.temperaturas.sensor1,
+              sensores.mediciones.temperaturas.sensor2,
+              sensores.mediciones.temperaturas.sensor2
+            ]"
+            :series-names="['Sensor 1 (°C)', 'Sensor 2 (°C)', 'Sensor 3 (°C)']"
+            :colors="['#13a8a8', '#1890ff']"
+            title="Temperaturas"
+            x-axis-type="time-relative"
             />
         </div><!-- Fin g5 -->
       </div> <!-- Fin div grid -->

@@ -209,15 +209,19 @@
 .contenedor-temp {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 20px;
 }  
 
 /*  Tarjeta para graficas */
 .card.grafica-card {
-  min-height: 300px;
+  min-height: 350px;
+  height: auto;
   position: relative;
   overflow: hidden; /*evita que se desborde el contenido de la grafica*/
+  display: flex;
+  flex-direction: column;
 }
+
 
 /* ==========================================================================
    COMPONENTE - POSICIONAMIENTO GRID
@@ -252,6 +256,28 @@
 }
 .borde{
   border-left: 5px solid #0077b6;
+}
+
+.tiempo-info{
+  padding: 10px 15px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.etiqueta-tiempo{
+  font-size: 12px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.rango-tiempo{
+  font-size: 13px;
+  color: #495057;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
 }
 
 /* ==========================================================================
@@ -331,7 +357,7 @@
   }
 
   .contenedor-metricas{
-    flex-direction: column;
+    flex-direction: row;
     gap: 15px;
   }
 

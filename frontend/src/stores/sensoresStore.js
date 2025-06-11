@@ -42,6 +42,9 @@ export const useSensoresStore = defineStore ('sensores', {
             }
         },
         etiquetasTiempo:[],
+        horaInicio: '',
+        horaFin: '',
+        rangoHoras: '',
         error: null
     }),//Fin de los estados (datos que se manejan globalmente)
 
@@ -197,18 +200,25 @@ export const useSensoresStore = defineStore ('sensores', {
             this.cargando = true;
 
             // Generar las etiquetas de tiempo al cargar los datos
-            this.generarEtiquetasTiempo(12);
-            console.log("Etiquetas generadas:", this.etiquetasTiempo);
+            //this.generarEtiquetasTiempo(12);
+            //console.log("Etiquetas generadas:", this.etiquetasTiempo);
 
             //Cálculo de una hora antes: set-> modifica hora de un objeto Date, get-> trae la hora
             // const horaAnterior = new Date();
-            // horaAnterior.setHours(horaAnterior.getHours() - 1)
-            // console.log(horaAnterior);
+            // horaAnterior.setHours(horaAnterior.getHours() - 1);
+            // const horaActual = new Date();
+
+            // this.horaInicio = horaAnterior.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false });
+            // this.horaFin = horaActual.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false });
+            // this.rangoHoras = `${this.horaInicio} - ${this.horaFin}`;
+            // console.log(this.rangoHoras)
+
+            
 
             //Hay que cambiar esto antes de hacer la prueba con la API
-            const horaAnterior = new Date();
-            horaAnterior.setDate(horaAnterior.getDate() - 30);
-            horaAnterior.setHours(horaAnterior.getHours() - 1);
+             const horaAnterior = new Date();
+             horaAnterior.setDate(horaAnterior.getDate() - 34);
+             horaAnterior.setHours(horaAnterior.getHours() - 1);
 
             try {
                 
@@ -223,7 +233,7 @@ export const useSensoresStore = defineStore ('sensores', {
                 this.mediciones.temperaturas.sensor2 = datos.thermometers.temp2;
                 this.mediciones.temperaturas.sensor3 = datos.thermometers.temp3;
                 // Normalizar datos para que coincidan con las etiquetas
-                this.normalizarDatos();
+                //this.normalizarDatos();
                 this.error = null;
 
             } catch (error) {
