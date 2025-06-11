@@ -30,6 +30,8 @@ def ingest_data(json_data):
                 )
         measure  = Measure(
                 source_current=json_data["ammeters"]["source"],
+                load_status=json_data["switches"]["load"],
+                vca_status=json_data["switches"]["vca"],
                 solar=solar_measure,
                 wind=wind_measure,
                 battery=batt_measure
