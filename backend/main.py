@@ -5,18 +5,17 @@ from sqlmodel import Session, select
 from ingester import start_ingest
 from datetime import datetime
 
-
-#create_db()
-#start_ingest()
+create_db()
+start_ingest()
 
 app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 @app.get("/measures/")
 async def read_measure(start_date: str = "2025-05-08T12:00:00"):
     date = datetime.fromisoformat(start_date)
