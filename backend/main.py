@@ -5,7 +5,7 @@ from sqlmodel import Session, select
 from ingester import start_ingest
 from datetime import datetime
 
-#create_db()
+create_db()
 #start_ingest()
 
 app = FastAPI()

@@ -46,5 +46,9 @@ class Measure(SQLModel, table=True):
 class Token(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     token: str
-    created_at: datetime | None = None
+    created_at: datetime | None = Field(sa_column=Column(
+        TIMESTAMP(timezone=True),
+        nullable=False,
+        server_default=text("CURRENT_TIMESTAMP")
+        ))
     expired_at: datetime
