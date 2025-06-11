@@ -1,6 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from database import create_db, Solar, Wind, Battery, Measure, engine
+from database import create_db, Solar, Wind, Battery, Measure, Token, engine
 from sqlmodel import Session, select
 from ingester import start_ingest
 from datetime import datetime
@@ -13,11 +13,24 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+def verify_credencial(credential: str):
+    valid_credencial = []
+    with Session(engine) as session:
+        statement = select(Token).where(Token.expired_at >= datetime.now())
+        tokens = session.exec(statement).all()
+        for token in tokens:
+            valid_credencial.append(token.token)
+    if not credential in valid_credencial:
+        raise HTTPException(status_code=401, detail="Invalid Token")
+    return True
+
 @app.get("/measures/")
-async def read_measure_interval(start_date: str = "2025-05-08T12:00:00"):
+async def read_measure_interval(start_date: str = "2025-05-08T12:00:00", credential: bool = Depends(verify_credencial)):
     date = datetime.fromisoformat(start_date)
     payload = {
             "voltmeters": {
@@ -53,7 +66,7 @@ async def read_measure_interval(start_date: str = "2025-05-08T12:00:00"):
     return payload
 
 @app.get("/live/")
-async def read_last_measure():
+async def read_last_measure(credential: bool = Depends(verify_credencial)):
     payload = {
             "measure": int,
             "voltage": {
