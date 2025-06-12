@@ -94,12 +94,10 @@ class Command():
                     statement = select(Measure).order_by(Measure.id.desc()).limit(1)
 #                    debug(statement)
                     new_measure = session.exec(statement).one()
-#                    debug("######################### VALIDATED MEASURE #########################")
                     debug(f"Measure id: {new_measure.id}")
 #                    debug(f"Solar: {new_measure.solar}")
 #                    debug(f"Wind: {new_measure.wind}")
 #                    debug(f"Battery: {new_measure.battery}")
-#                    debug("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
                     if self.validate(new_measure):
                         debug(f"Command executed: {self}")
                         self.serial.close()
@@ -122,27 +120,82 @@ def adjusted_voltage_factor(voltage: float) -> int:
         return 0
     else:
         return round(100 * settings.voltage_threshold / voltage)
+
+def connect_load(measure: Measure) -> Command:
+    if measure.solar.status or measure.wind.status:
+        return Command(Cmd.LOAD_SW, 1)
+    elif measure.battery.voltage >= settings.battery_voltage_threshold:
+        return Command(Cmd.LOAD_SW, 1)
+    else:
+        return Command(Cmd.LOAD_SW, 0)
+
+def protect_battery(measure: Measure) -> Command:
+    mean_temp = measure.battery.temp_a
+    mean_temp += measure.battery.temp_b
+    mean_temp += measure.battery.temp_c
+    mean_temp /= 3
+    if mean_temp >= settings.battery_max_temp:
+        return Command(Cmd.BATTERY_SW, 0)
+    else:
+        return Command(Cmd.BATTERY_SW, 1)
     
 def start_oversee():
+    set_source_A = None
+    adjust_solar_A = None
+    adjust_wind_A = None
+    with Session(engine) as session:
+        statement = select(Measure).order_by(Measure.id.desc()).limit(1)
+#        debug(statement)
+        measure = session.exec(statement).one()
+        debug(f"Measure id: {measure.id}")
+        set_source_A = select_source(measure)
+        adjust_solar_A = Command(Cmd.SOLAR_PWM,
+                                 adjusted_voltage_factor(measure.solar.voltage))
+        adjust_wind_A = Command(Cmd.WIND_PWM,
+                                adjusted_voltage_factor(measure.wind.voltage))
+    # If not source has enought voltage then turn them both off
+    if set_source_A == None:
+        Command(Cmd.SOLAR_SW, 0).execute()
+        Command(Cmd.WIND_SW, 0).execute()
+    set_load_A = Command(Cmd.LOAD_SW, 1)
+    set_battery_A = Command(Cmd.BATTERY_SW, 1)
+    set_source_B = None
+    set_battery_B = None
+    set_load_B = None
+    adjust_solar_B = None
+    adjust_wind_B = None
     while True:
+        if set_source_A != set_source_B:
+            set_source_B = set_source_A
+            set_source_A.execute()
+        if set_battery_A != set_battery_B:
+            set_battery_B = set_battery_A
+            set_battery_A.execute()
+        if set_load_A != set_load_B:
+            set_load_B = set_load_A
+            set_load_A.execute()
+        if adjust_solar_A != adjust_solar_B:
+            adjust_solar_B = adjust_solar_A
+            adjust_solar_A.execute()
+        if adjust_wind_A != adjust_wind_B:
+            adjust_wind_B = adjust_wind_A
+            adjust_wind_A.execute()
+
         with Session(engine) as session:
             statement = select(Measure).order_by(Measure.id.desc()).limit(1)
 #            debug(statement)
             measure = session.exec(statement).one()
-#            debug("######################### NEW MEASURE #########################")
             debug(f"Measure id: {measure.id}")
-#            debug(f"Solar: {measure.solar}")
-#            debug(f"Wind: {measure.wind}")
-#            debug(f"Battery: {measure.battery}")
-#            debug("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-            set_source = select_source(measure)
-            if set_source != None:
-                set_source.execute()
-            adjust_solar = Command(Cmd.SOLAR_PWM,
+            set_source_A = select_source(measure)
+            set_battery_A = protect_battery(measure)
+            set_load_A = connect_load(measure)
+            adjust_solar_A = Command(Cmd.SOLAR_PWM,
                                    adjusted_voltage_factor(measure.solar.voltage))
-            adjust_wind = Command(Cmd.WIND_PWM,
+            adjust_wind_A = Command(Cmd.WIND_PWM,
                                   adjusted_voltage_factor(measure.wind.voltage))
-            adjust_solar.execute()
-            adjust_wind.execute()
+    # If not source has enought voltage then turn them both off
+    if set_source_A == None:
+        Command(Cmd.SOLAR_SW, 0).execute()
+        Command(Cmd.WIND_SW, 0).execute()
 
 start_oversee()

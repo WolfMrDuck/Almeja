@@ -15,3 +15,6 @@ cmd_sleep_ms = 400
 
 token_size = 12
 token_lifespan = 1
+
+battery_voltage_threshold = 10
+battery_max_temp = 40
