@@ -37,10 +37,12 @@ export const useSensoresStore = defineStore ('sensores', {
             bateria: {
                 carga: 0
             },
-            switches: {
+            estatus: {
                 solar: false,
                 eolica: false,
-                baterias: false
+                baterias: false,
+                carga: false,
+                vca: false
             }
         },
         horaInicio: '',
@@ -56,7 +58,7 @@ export const useSensoresStore = defineStore ('sensores', {
         errorApi: (state) => state.api.error.value,
 
         fuenteActiva: (state) => {
-            const { solar, eolica, baterias } = state.medicionActual.switches;
+            const { solar, eolica, baterias, vca } = state.medicionActual.estatus;
             
             if (solar) {
                 return {
@@ -77,6 +79,13 @@ export const useSensoresStore = defineStore ('sensores', {
                     nombre: 'Banco de Baterías',
                     voltaje: state.medicionActual.voltaje.baterias,
                     corriente: state.medicionActual.corriente.baterias
+                };
+            }
+            if (vca) {
+                return {
+                    nombre: 'CFE',
+                    voltaje: '127',
+                    corriente: '10000VA'
                 };
             }
             return{
@@ -130,23 +139,27 @@ export const useSensoresStore = defineStore ('sensores', {
          async cargarValorActual(){
             try {
                 
-                const dato = await this.api.getApi('/actual/');
+                const dato = await this.api.getApi('/live/');
 
-                this.medicionActual.voltaje.solar = dato.voltmeters.solar;
-                this.medicionActual.voltaje.eolica = dato.voltmeters.wind;
-                this.medicionActual.voltaje.baterias = dato.voltmeters.battery;
 
-                this.medicionActual.corriente.fuente = dato.ammeters.source;
-                this.medicionActual.corriente.baterias = dato.ammeters.battery;
+                this.medicionActual.voltaje.solar = dato.voltage.solar;
+                this.medicionActual.voltaje.eolica = dato.voltage.wind;
+                this.medicionActual.voltaje.baterias = dato.voltage.battery;
 
-                this.medicionActual.temperatura.sensor1 = dato.thermometers.temp1;
-                this.medicionActual.temperatura.sensor2 = dato.thermometers.temp2;
-                this.medicionActual.temperatura.sensor3 = dato.thermometers.temp3;
+                this.medicionActual.corriente.fuente = dato.current.source;
+                this.medicionActual.corriente.baterias = dato.current.battery;
+
+                this.medicionActual.temperatura.sensor1 = dato.temperature.temp1;
+                this.medicionActual.temperatura.sensor2 = dato.temperature.temp2;
+                this.medicionActual.temperatura.sensor3 = dato.temperature.temp3;
                 this.medicionActual.bateria.carga = dato.battery;
 
-                this.medicionActual.switches.solar = dato.switch.solar;
-                this.medicionActual.switches.eolica = dato.switch.wind;
-                this.medicionActual.switches.baterias = dato.switch.battery;
+                this.medicionActual.estatus.solar = dato.status.solar;
+                this.medicionActual.estatus.eolica = dato.status.wind;
+                this.medicionActual.estatus.baterias = dato.status.battery;
+                this.medicionActual.estatus.carga = dato.status.load;
+                this.medicionActual.estatus.vca = dato.status.vca;
+
 
             } catch (error) {
                 console.error("Error cargando el valor actual: ", error)

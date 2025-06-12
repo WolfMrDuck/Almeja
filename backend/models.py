@@ -31,6 +31,9 @@ class Measure(SQLModel, table=True):
         server_default=text("CURRENT_TIMESTAMP")
         ))
 
+    load_status: bool | None = None
+    vca_status: bool | None = None
+
     solar_id: int | None = Field(default=None, foreign_key="solar.id")
     solar: Solar | None = Relationship(back_populates="measure", sa_relationship_kwargs={'uselist': False})
 
@@ -43,5 +46,9 @@ class Measure(SQLModel, table=True):
 class Token(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     token: str
-    created_at: datetime | None = None
+    created_at: datetime | None = Field(sa_column=Column(
+        TIMESTAMP(timezone=True),
+        nullable=False,
+        server_default=text("CURRENT_TIMESTAMP")
+        ))
     expired_at: datetime

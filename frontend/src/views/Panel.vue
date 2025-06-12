@@ -4,12 +4,14 @@ import { useRouter } from 'vue-router';
 import { useSensoresStore } from '@/stores/sensoresStore';
 import { useAutenticacion } from '@/composables/useAutenticacion';
 import { storeToRefs } from 'pinia';
+import { useCookies } from '@/composables/useCookies';
 import LineChart from '@/components/LineChart.vue';
 import BotonBase from '@/components/BotonBase.vue';
 import ModalAyuda from '@/components/ModalAyuda.vue';
 import "@/assets/panel.css"
 
-const {cerrarSesion} = useAutenticacion();
+const {cerrarSesion, inicializarAuth} = useAutenticacion();
+const {obtenerTodasLasCookies} = useCookies();
 const sensores = useSensoresStore();
 const { fuenteActiva, medicionActual } = storeToRefs(sensores);
 
@@ -55,6 +57,10 @@ let intervaloGraficas;
 let intervaloTarjetas;
 
 onMounted(() => {
+  inicializarAuth();
+  console.log("Montado el panel");
+  console.log("Token:", obtenerTodasLasCookies());
+
   actualizarGraficas();
   actualizarTarjetas();
 
