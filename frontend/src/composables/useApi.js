@@ -1,11 +1,13 @@
 import { ref } from "vue";
 import { useCookies } from "./useCookies";
+import { useAutenticacion } from "./useAutenticacion";
 
 export function useApi() {
     const cargando = ref(false)
     const error = ref(null)
     const urlBase = 'http://localhost:8080'
     const {obtenerCookie} = useCookies()
+    const {cerrarSesion} = useAutenticacion()
 
     const obtenerConfiguracion = () => {
         const token = obtenerCookie('tokenAcceso')
@@ -24,7 +26,8 @@ export function useApi() {
     const manejarRespuesta = async (respuesta) => {
         if (!respuesta.ok) {
             if (respuesta.status === 401) {
-                throw new Error('SESIÓN EXPIRADA')
+                cerrarSesion();
+                throw new Error('Token inválido o expirado')
             }
             throw new Error(`Error ${respuesta.status}: ${respuesta.statusText}`)
         }
@@ -56,36 +59,11 @@ export function useApi() {
         } finally {
             cargando.value = false
         }
-
-    }
-
-    // POST - Crear datos
-    const postApi = async (endpoint, datos) => {
-        cargando.value = true
-        error.value = null
-        
-        try {
-        const respuesta = await fetch(`${urlBase}${endpoint}`, {
-            method: 'POST',
-            ...obtenerConfiguracion(),
-            body: JSON.stringify(datos)
-        })
-        
-        const resultado = await manejarRespuesta(respuesta)
-        return resultado
-        } catch (err) {
-            error.value = err.message
-            throw err
-        } finally {
-            cargando.value = false
-        }
     }
 
     return {
         cargando,
         error,
         getApi,
-        postApi
     }
-
 }

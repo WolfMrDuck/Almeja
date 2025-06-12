@@ -18,7 +18,7 @@ const routes = [
     path: '/panel',
     name: 'panel',
     component: Panel,
-    //meta: {requiresAuth: true} // Meta para rutas protegidas
+    //meta: {requiresAuth: true} // Meta para rutas protegidas <- Descomentar para las cookies
   }
 ]
 

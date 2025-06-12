@@ -30,7 +30,9 @@ export const useSensoresStore = defineStore ('sensores', {
                 baterias: 0
             },
             temperatura: {
-                promedio: 0
+                sensor1: 0,
+                sensor2: 0,
+                sensor3: 0
             },
             bateria: {
                 carga: 0
@@ -41,7 +43,6 @@ export const useSensoresStore = defineStore ('sensores', {
                 baterias: false
             }
         },
-        etiquetasTiempo:[],
         horaInicio: '',
         horaFin: '',
         rangoHoras: '',
@@ -53,61 +54,6 @@ export const useSensoresStore = defineStore ('sensores', {
         //Estados de carga de la API:
         cargandoAPI: (state) => state.api.cargando.valueOf,
         errorApi: (state) => state.api.error.value,
-
-        //Etiquetas de tiempo
-        etiquetasGrafica: (state) => {
-            return state.etiquetasTiempo;
-        },
-
-        //Para voltajes...
-        datosVoltajes: (state) => [
-            {
-                label: 'Fuente Solar (V)',
-                data: state.mediciones.voltajes.solar,
-                borderColor: 'rgb(200, 181, 54)',
-                backgroundColor: 'rgba(200, 181, 54, 0.1)',
-                tension: 0.1
-            },
-            {
-                label: 'Fuente Eólica (V)',
-                data: state.mediciones.voltajes.eolica,
-                borderColor: 'rgb(99, 182, 255)',
-                backgroundColor: 'rgba(99, 182, 255, 0.1)',
-                tension: 0.1
-            },
-            {
-                label: 'Banco de Baterías (V)',
-                data: state.mediciones.voltajes.baterias,
-                borderColor: 'rgb(54, 235, 166)',
-                backgroundColor: 'rgba(54, 235, 166, 0.1)',
-                tension: 0.1
-            }
-        ],
-        
-        //Para temperaturas...
-        datosTemperaturas: (state) => [
-            {
-                label: 'Sensor 1 (°C)',
-                data: state.mediciones.temperaturas.sensor1,
-                borderColor: 'rgb(54, 235, 166)',
-                backgroundColor: 'rgba(54, 235, 166, 0.1)',
-                tension: 0.1
-            },
-            {
-                label: 'Sensor 2 (°C)',
-                data: state.mediciones.temperaturas.sensor2,
-                borderColor: 'rgb(54, 235, 166)',
-                backgroundColor: 'rgba(54, 235, 166, 0.1)',
-                tension: 0.1
-            },
-            {
-                label: 'Sensor 3 (°C)',
-                data: state.mediciones.temperaturas.sensor3,
-                borderColor: 'rgb(54, 235, 166)',
-                backgroundColor: 'rgba(54, 235, 166, 0.1)',
-                tension: 0.1
-            }
-        ],
 
         fuenteActiva: (state) => {
             const { solar, eolica, baterias } = state.medicionActual.switches;
@@ -143,65 +89,8 @@ export const useSensoresStore = defineStore ('sensores', {
 
     actions: {
 
-        generarEtiquetasTiempo(numIntervalos){
-            const horaActual = new Date();
-            const horaAnt = new Date(horaActual.getTime() - 60 * 60 * 1000);
-            
-            const intervaloTiempo = (horaActual.getTime() - horaAnt.getTime()) / (numIntervalos - 1);
-
-            const etiquetas = [];
-            for (let index = 0; index < numIntervalos; index++) {
-                const tiempoPunto = new Date(horaAnt.getTime() + intervaloTiempo * index);
-                const horas = tiempoPunto.getHours().toString().padStart(2, '0');
-                const minutos = tiempoPunto.getMinutes().toString().padStart(2, '0');
-                etiquetas.push(`${horas}:${minutos}`)
-                console.log(`Etiqueta ${index}: ${horas}:${minutos}`);
-
-            }
-            this.etiquetasTiempo = etiquetas;
-        },
-
-        normalizarDatos() {
-            const longitudEtiquetas = this.etiquetasTiempo.length;
-
-            const normalizarArreglo = (arreglo) => {
-                if (arreglo.length === 0) {
-                    // Si no hay datos, rellenar con ceros
-                    return Array(longitudEtiquetas).fill(0);
-                } else if (arreglo.length < longitudEtiquetas) {
-                    // Si hay menos datos que etiquetas, rellenar con valores nulos
-                    return [...arreglo, ...Array(longitudEtiquetas - arreglo.length).fill(null)]
-                } else if (arreglo.length > longitudEtiquetas) {
-                    // Si hay más datos que etiquetas, hacer un submuestreo
-                    const resultado = [];
-                    const salto = arreglo.length / longitudEtiquetas;
-                    for (let i = 0; i < longitudEtiquetas; i++) {
-                        const indice = Math.floor(i * salto);
-                        resultado.push(arreglo[indice]);
-                    }
-                    return resultado;
-                }
-                // Si la longitud es correcta, devolver el arreglo original
-                return arreglo;
-            };
-            // Normalizar todos los arreglos de datos
-            // Voltajes
-            this.mediciones.voltajes.solar = normalizarArreglo(this.mediciones.voltajes.solar);
-            this.mediciones.voltajes.eolica = normalizarArreglo(this.mediciones.voltajes.eolica);
-            this.mediciones.voltajes.baterias = normalizarArreglo(this.mediciones.voltajes.baterias);
-             
-            // Temperaturas
-            this.mediciones.temperaturas.sensor1 = normalizarArreglo(this.mediciones.temperaturas.sensor1);
-            this.mediciones.temperaturas.sensor2 = normalizarArreglo(this.mediciones.temperaturas.sensor2);
-            this.mediciones.temperaturas.sensor3 = normalizarArreglo(this.mediciones.temperaturas.sensor3);
-        },
-
         async cargarDatos(){
             this.cargando = true;
-
-            // Generar las etiquetas de tiempo al cargar los datos
-            //this.generarEtiquetasTiempo(12);
-            //console.log("Etiquetas generadas:", this.etiquetasTiempo);
 
             //Cálculo de una hora antes: set-> modifica hora de un objeto Date, get-> trae la hora
             // const horaAnterior = new Date();
@@ -211,17 +100,13 @@ export const useSensoresStore = defineStore ('sensores', {
             // this.horaInicio = horaAnterior.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false });
             // this.horaFin = horaActual.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false });
             // this.rangoHoras = `${this.horaInicio} - ${this.horaFin}`;
-            // console.log(this.rangoHoras)
 
-            
-
-            //Hay que cambiar esto antes de hacer la prueba con la API
+            //Descomentar lo anterior y eliminar lo siguiente:
              const horaAnterior = new Date();
              horaAnterior.setDate(horaAnterior.getDate() - 34);
              horaAnterior.setHours(horaAnterior.getHours() - 1);
 
             try {
-                
                 const datos = await this.api.getApi('/measures/', {start_date: horaAnterior.toISOString()} );
                 
                 // Procesar los datos según la estructura de la API
@@ -232,10 +117,8 @@ export const useSensoresStore = defineStore ('sensores', {
                 this.mediciones.temperaturas.sensor1 = datos.thermometers.temp1;
                 this.mediciones.temperaturas.sensor2 = datos.thermometers.temp2;
                 this.mediciones.temperaturas.sensor3 = datos.thermometers.temp3;
-                // Normalizar datos para que coincidan con las etiquetas
-                //this.normalizarDatos();
+                
                 this.error = null;
-
             } catch (error) {
                 console.log('Ocurrió un error: ', error);
                 this.error = error.message;
@@ -256,7 +139,9 @@ export const useSensoresStore = defineStore ('sensores', {
                 this.medicionActual.corriente.fuente = dato.ammeters.source;
                 this.medicionActual.corriente.baterias = dato.ammeters.battery;
 
-                this.medicionActual.temperatura.promedio = dato.thermometer.prom;
+                this.medicionActual.temperatura.sensor1 = dato.thermometers.temp1;
+                this.medicionActual.temperatura.sensor2 = dato.thermometers.temp2;
+                this.medicionActual.temperatura.sensor3 = dato.thermometers.temp3;
                 this.medicionActual.bateria.carga = dato.battery;
 
                 this.medicionActual.switches.solar = dato.switch.solar;

@@ -207,7 +207,7 @@ onUnmounted(() => {
                 sensores.mediciones.voltajes.baterias
               ]"
               :series-names="['Solar (V)', 'Eólica (V)', 'Baterías (V)']"
-              title="Voltajes dentro de la última hora"
+              title="Voltajes"
               x-axis-type="time-relative"
             />
         </div>

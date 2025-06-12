@@ -1,7 +1,6 @@
 import { computed, readonly, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useCookies } from "./useCookies";
-import { useApi } from "./useApi";
 
 const tokenUsuario = ref('')
 const estaAutenticado = ref(false)
@@ -10,7 +9,6 @@ export function useAutenticacion() {
 
     const router = useRouter()
     const {establecerCookie, obtenerCookie, eliminarCookie} = useCookies()
-    const {postApi, cargando: cargandoAPI, error: errorApi} = useApi()
     
     const inicializarAuth = () => {
         const tokenGuardado = obtenerCookie('tokenAcceso')
@@ -20,54 +18,23 @@ export function useAutenticacion() {
         }
     }
 
-    const validarToken = async (token) => {
-        try {
-
-            const respuesta = await postApi('/auth/token-validation',{token})
-            if (respuesta && respuesta.valido) {
-                return {valido: true}
-            }else{
-                return {
-                    valido: false,
-                    error: respuesta.mensaje || 'Token inválido'
-                }
-            }
-        } catch (error) {
-            console.error('Error validando token: ', error)
-            if (error.message === 'SESION EXPIRADA') {
-                cerrarSesion()
-                return {valido: false, error: 'Sesión expirada'}
-            }
-            return{
-                valido: false,
-                error: 'Error de conexión con el servidor'
-            }
-        }
-    }
-
     const ingresarConToken = async (token) => {
         if (!token || token.trim() === '') {
             throw new Error('El token no puede estar vacío')          
         }
-        const resultado = await validarToken(token)
+        
+        establecerCookie('tokenAcceso', token, {
+            expires: 7, //7 días
+            sameSite: 'Strict'
+        })
 
-        if (resultado.valido) {
-            establecerCookie('tokenAcceso', token, {
-                expires: 7, //7 días
-                secure: false,
-                sameSite: 'Strict'
-            })
+        tokenUsuario.value = token;
+        estaAutenticado.value = true;
 
-            tokenUsuario.value = token
-            estaAutenticado.value = true
+        router.push('/panel');
 
-            router.push('/panel')
-
-            return {exito: true, mensaje: 'Ingreso al sistema exitoso'}
-        }else{
-            throw new Error(resultado.error || 'Token inválido')
-        }
-    }
+        return { exito: true, mensaje: 'Ingreso al sistema exitoso'};
+    };
 
     const cerrarSesion = () => {
         eliminarCookie('tokenAcceso')
@@ -83,8 +50,8 @@ export function useAutenticacion() {
     return {
         tokenUsuario: readonly(tokenUsuario),
         estaAutenticado: readonly(estaAutenticado),
-        cargandoAuth: readonly(cargandoAPI),
-        errorAuth: readonly(errorApi),
+        cargandoAuth: ref(false),
+        errorAuth: ref(null),
         tieneAcceso,
         ingresarConToken,
         inicializarAuth,
