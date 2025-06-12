@@ -1,171 +1,372 @@
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #ffffff;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .contenedorGral {
-    padding: 20px;
-  }
+/* ==========================================================================
+   LAYOUT PRINCIPAL
+   ========================================================================== */  
+.contenedorGral {
+  width: 100%;
+  height: 100%;    
+  background-color: var(--color-gris);
+  overflow-x: hidden; /*evita el scroll horizontal*/
+}
 
-  .sombra{ /* www.cssmatic.com/box-shadow  -> para la sombra */
-    box-shadow: 0px 5px 3px -3px rgba(112,112,112,0.59);
-  }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /*las columnas miden lo mismo*/
+  /*grid-template-rows: 1fr 2fr 2fr; una de las filas es más pequeña que la otra*/
+  gap: 15px;
+  margin-top: 80px;
+  padding: 40px;
+  box-sizing: border-box;
+}
 
-  .sombra-card {
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
+/* ==========================================================================
+  COMPONENTE - HEADER
+  ========================================================================== */
 
-  .encabezado {
-    background: white;
+  .header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  transition: all 0.3s ease;  /* Animación suave */
+  z-index: 1000;
+}
+
+.header.pequeno {
+  height: 60px;
+}
+
+.contenido-header {
     /*border: #006B9F solid;  esto es solo para ver el borde*/
+    height: 100%;
     padding: 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-  }
+}
 
-  .bienvenida {
-    color: #006B9F;
-    font-size: 30px;
-    font-weight: bold;
-  }
+/*  Titulo de bienvenida  */
 
-  .datos {
-    font-size: 18px;
-    color: var(--color-primario);
-    font-weight: bold;
-  }
-  
-  .panel {
-    /* border: #006B9F solid;esto es solo para ver el borde */
-    margin-top: 20px;
-    padding: 40px;
-  }
+.bienvenida {
+  color: var(--color-primario);
+  font-size: 30px;
+  font-weight: bold;
+  transition: font-size 0.3s ease;
+}
 
-  .contenedor_panel {
-    width: 100%;
-    height: 100%;
-    justify-content: center;
-    align-items: flex-start;
-  }
+.header.pequeno .bienvenida{
+  font-size: 25px;
+}
 
-  .card {
-    /* background: white; */
-    /* border: #006B9F solid;esto es solo para ver el borde */
+/*  Contenedor botones escritorio  */
+
+.botones-escritorio{
+  width: 450px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ==========================================================================
+  COMPONENTE - MENÚ HAMBURGUESA
+  ========================================================================== */
+
+.boton-menu{
+  display: none; /*oculto por defecto*/
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  padding: 0;
+}
+
+.linea{
+  width: 25px;
+  height: 3px;
+  background: var(--color-primario);
+  margin: 5px auto;
+  transition: all 0.3s ease;
+}
+
+/* Animación X */
+.boton-menu.abierto .linea:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.boton-menu.abierto .linea:nth-child(2) {
+  opacity: 0;
+}
+
+.boton-menu.abierto .linea:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/*menu desplegable*/
+.menu-desplegable {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--color-blanco);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+  display: none;
+  min-width: 200px;
+}
+
+.menu-desplegable.activo {
+  display: block;
+}
+
+.lista-menu {
+  list-style: none;
+  padding: 10px 0;
+}
+
+.opcion-menu {
+  padding: 15px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.opcion-menu:hover {
+  background: var(--color-gris);
+  color: var(--color-primario);
+}
+
+/* ==========================================================================
+  COMPONENTE - TARJETAS (CARDS)
+  ========================================================================== */
+.card {
+    /* border: #006B9F solid;esto es solo para ver el borde #d3e2f7*/    
     padding: 15px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-  }
-
-  .icono {
-    margin: 10px;
-    justify-content: space-around;
-    align-items: center;
-  }
-  
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /*las columnas miden lo mismo*/
-    grid-template-rows: 1fr 2fr 2fr; /*una de las filas es más pequeña que la otra*/
-    gap: 15px;
-    margin-top: 20px;
-  }
-
-  /*Para posicionar los cards*/
-  .g1{
-    grid-column: 1/5;
-    grid-row: 1/2;
-  }
-  .g2{
-    grid-column:1/4;
-    grid-row: 2/3;
-  }
-  .g3{
-    grid-column:4/5;
-    grid-row: 2/3;
-  }
-  .g4{
-    grid-column:1/4 ;
-    grid-row: 3/4;
-  }
-  .g5{
-    grid-column:4/5 ;
-    grid-row: 3/4;
-  }
-
-  .subtitle {
-    font-size: 18px;
-    font-weight: bold;
-    text-align: center;
-  }
-  
-  
-.boton-logout{
-    background-color: transparent;
-    border: none;
-    padding: 5px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border-radius: 12px;
+    box-sizing: border-box;
 }
 
-.boton-logout svg {
-    transition: transform 0.2s, fill 0.3s;
+.encabezado-card{
+  margin: -15px -15px 0 -15px;
+  padding: 15px 20px;
+  border-radius: 12px 12px 0 0;
+  text-align: center;
 }
 
-.boton-logout:hover {
-    background-color: var(--color-primario-hover);
-    /*border: var(--color-primario) solid;*/
-    transform: scale(1.1);
+.titulo-card{
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-letras);
+  margin: 0;
+}
+
+.contenedor-metricas{
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.item-metricas{
+  flex: 1;
+  text-align: center;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.icono-metricas{
+  margin-bottom: 5px;
+}
+
+.valor-metricas{
+  font-size: 32px;
+  font-weight: 450;
+  color: var(--color-letras);
+  margin: 8px 0 4px 0;
+  line-height: 1;
+}
+
+.etiqueta-metricas{
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+  margin: 0 0 4px 0;
+}
+
+.rango-metricas{
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.unidad{
+  font-size: 18px;
+  font-weight: 400;
+  margin-left: 2px;
+}
+
+/*  Tarjeta para datos del banco */
+.contenedor-temp {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }  
 
-.boton-logout:hover svg {
-    stroke: var(--color-blanco);
+/*  Tarjeta para graficas */
+.card.grafica-card {
+  min-height: 350px;
+  height: auto;
+  position: relative;
+  overflow: hidden; /*evita que se desborde el contenido de la grafica*/
+  display: flex;
+  flex-direction: column;
 }
 
-/*Media queries*/
-@media screen and (max-width: 768px) {
+
+/* ==========================================================================
+   COMPONENTE - POSICIONAMIENTO GRID
+   ========================================================================== */
+
+.g1{
+    grid-column: 2/4;
+    grid-row: 1/2;
+}
+.g2{
+    grid-column:1/5;
+    grid-row: 2/3;
+}
+  
+.g4{
+    grid-column:1/2 ;
+    grid-row: 3/4;
+}
+.g5{
+    grid-column:2/5 ;
+    grid-row: 3/4;
+}
+
+/* ==========================================================================
+   OTROS
+   ========================================================================== */ 
+.sombra {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.fondoBlanco {
+  background-color: var(--color-blanco);
+}
+.borde{
+  border-left: 5px solid #0077b6;
+}
+
+.tiempo-info{
+  padding: 10px 15px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.etiqueta-tiempo{
+  font-size: 12px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.rango-tiempo{
+  font-size: 13px;
+  color: #495057;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN - TABLET
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* Layout principal */
   .grid{
     grid-template-columns: 1fr;
     grid-template-rows: auto;
+    padding: 20px;
+    margin-top: 100px;
+    gap: 20px;
   }
-  .g1, .g2, .g3, .g4, .g5 {
+
+  /* Resetear posiciones del grid */
+  .g1, .g2, .g4, .g5 {
     grid-column: 1 / -1;
     grid-row: auto;
   }
-  .panel{
-    padding: 20px;
-  }
+
   .g1{
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 15px;
   }
-  .icono{
+
+  .g1.card {
     width: 100%;
-    margin: 5px 0;
+    margin: 0;
+  }
+
+  .card.grafica-card {
+    min-height: 250px;
+    width: 100%;
+  }
+
+  .contenedor-temp{
+    flex-direction: row;
+  }
+
+/* Header responsive */
+  .boton-escritorio{
+      display: none !important;
+  }
+
+  .botones-escritorio{
+    display: none;
+  }
+
+  .boton-menu{
+      display: block;
   }
 }
 
-@media screen and (max-width: 576px) {
+/* ==========================================================================
+   RESPONSIVE DESIGN - MÓVIL
+   ========================================================================== */
+@media (max-width: 576px) {
   .bienvenida {
-    font-size: 24px;
+    font-size: 20px;
   }
-  .encabezado {
+  .contenido-header {
     padding: 15px;
-    flex-wrap: wrap;
+    gap: 10px;
   }
-  .panel{
+  .grid{
     padding: 15px;
+    gap: 15px;
   }
-  .icono{
-    width: 100%;
-    flex: none;
-    margin: 5px 0;
+
+  .card{
+    padding: 12px;
   }
+
+  .card.grafica-card {
+    min-height: 200px;
+  }
+
+  .contenedor-metricas{
+    flex-direction: row;
+    gap: 15px;
+  }
+
+  .valor-metricas{
+    font-size: 28px;
+  }
+  .boton-logout svg {
+    width: 28px;
+    height: 28px;
+  }
+
 }

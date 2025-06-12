@@ -17,6 +17,10 @@ const props = defineProps({
   deshabilitado: {
     type: Boolean,
     default: false
+  },
+  tipoBoton: {
+    type: String,
+    default: 'button'
   }
 });
 
@@ -34,6 +38,7 @@ const manejarClic = () => {
 
 <template>
   <button 
+    :type="tipoBoton"
     class="boton-base" 
     :class="[`tipo-${tipo}`, `tamano-${tamano}`, { 'deshabilitado': deshabilitado }]"
     :disabled="deshabilitado"
@@ -46,7 +51,10 @@ const manejarClic = () => {
 
 <style scoped>
 .boton-base {
-  display: inline-block;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
   border-radius: 4px;
   font-weight: 500;
   cursor: pointer;
@@ -100,9 +108,5 @@ const manejarClic = () => {
   background-color: var(--color-deshabilitado);
   opacity: 0.6;
   cursor: not-allowed;
-}
-.deshabilitado:hover {
-  /* Anulamos los efectos hover cuando está deshabilitado */
-  background-color: inherit;
 }
 </style>

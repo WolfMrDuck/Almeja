@@ -10,6 +10,7 @@
         LinearScale, 
         plugins,
         scales} from 'chart.js';
+import { ref, watch } from 'vue';
 
     ChartJS.register(
         Title,
@@ -28,38 +29,50 @@
     });
 
     //Datos de la grafica
-    const datosGrafica = {
+    const datosGrafica = ref({
         labels: props.etiquetas,
         datasets: props.datasets
-    };
+    });
+
+    // Watch para actualizar datos cuando cambien las props
+    watch(
+        () => [props.etiquetas, props.datasets],
+        ([nuevasEtiquetas, nuevosDatasets]) => {
+            datosGrafica.value = {
+                labels: nuevasEtiquetas,
+                datasets: nuevosDatasets
+            };
+        },
+        { deep: true }
+    );
 
     // Opciones de la gráfica
     const opcionesGrafica = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-            Title: {
+            title: {
                 display: true,
                 text: props.titulo
             },
-            Tooltip: {
+            tooltip: {
                 mode: 'index',
                 intersect: false,
             },
-            Legend: {
+            legend: {
                 display: true,
                 position: 'top',
             }
         },
         scales: {
             x: {
-                Title: {
+                title: {
                     display: true,
                     text: 'Tiempo'
                 }
             },
             y: {
-                Title: {
+                title: {
                     display: true,
                     text: 'Valor'
                 },
@@ -72,15 +85,22 @@
 </script>
 
 <template>
-   <div class="contenedorGrafica">
-    <Line :data="datosGrafica" :options="opcionesGrafica"/>
-   </div>
+    <div class="grafica">
+      <Line :data="datosGrafica" :options="opcionesGrafica"/>
+    </div>
 </template>
 
 <style>
- .contenedorGrafica{
+.grafica {
     width: 100%;
-    height: 100%;
-    margin: 0 auto;
- }
+    min-height: 250px;
+    height: auto;
+}
+
+@media screen and (max-width: 768px) {
+  .grafica {
+    min-height: 200px;
+  }
+}
+
 </style>

@@ -1,7 +1,9 @@
-/* Diseño principal */
+/* ==========================================================================
+   LAYOUT PRINCIPAL
+   ========================================================================== */ 
 .container {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
     padding: 0;
   }
   
@@ -21,63 +23,88 @@
 .right {
     flex-direction: column;
     background: #f4f4f4;
+    height: auto;           
+    min-height: 100vh;
   }
   
-.titulo {
-    font-size: 52px;
-    font-family: Arial;
-    font-weight: bold;
-    color: #006B9F;
-    margin-bottom: 20px;
-  }
-  
-.divider {
+/* ==========================================================================
+  COMPONENTE - FOMULARIO LOGIN
+  ========================================================================== */
+
+.contenedor-login{
     display: flex;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    width: 250px;
-    margin-bottom: 16px;
-    margin-top: 16px;
-  }
-  
-.line {
-    flex-grow: 1;
-    border: none;
-    height: 1px;
-    background-color: #ccc;
+    padding: 2rem;
+    gap: 20px;
+}
+
+.titulo-login{
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--color-primario);
+    font-size: 3rem;
+    font-weight: 600;
+}
+
+.login-form{
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.grupo-form{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.grupo-form label{
+    font-weight: 500;
+    color: var(--color-letras);
+    font-size: 1rem;
 }
   
-.text {
-    margin: 0 10px;
-    color: #666;
-}
-  
-input{
-      max-width: 100%;
-      height: 20px;
-      border: none;
-      border-radius: 8px;
-      padding: 10px;
-      background-color: rgba(88, 180, 225, 0.262);
-      font-size: 18px;
-      color: var(--color-primario);
+.input-form{
+      border: 2px solid var(--color-primario);
+      border-radius: 6px;
+      padding: 0.75rem;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+      color: var(--color-letras);
     }
+
+.input-form:focus{
+    outline: none;
+    border-color: var(--color-primario-hover);
+    box-shadow: 0 0 0 1px var(--color-primario-hover);
+}
+
+/* ==========================================================================
+   OTROS
+   ========================================================================== */ 
 
 .ancho{
         width: 100%;
-    }
-    
-.contenedor {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-    
+    }  
 .espacio {
     gap: 50px;
 }  
+.aviso {
+    max-width: 250px;
+    padding: 10px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    color: var(--color-primario);
+}
 
-/*Media queries para versión móvil*/
-@media screen and (max-width: 768px) {
+
+/* ==========================================================================
+   RESPONSIVE DESIGN - TABLET
+   ========================================================================== */
+
+@media(max-width: 768px) {
     .container{
         flex-direction: column;
         position: relative;
@@ -99,34 +126,24 @@ input{
         justify-content: center;
     }
 
-    .contenedor.espacio {
+    .contenedor-login{
         background-color: #f4f4f4;
         border-radius: 8px;
-        padding: 35px;
+        padding: 2.18rem;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         margin: 0;
+        gap: 20px;
     }
-
-    .titulo{
-        font-size: 36px;
-        margin-bottom: 25px;
-    }
-
-    .divider{
-        margin-top: 20px;
-        margin-bottom: 20px;
+    .titulo-login{
+        font-size: 2.2rem;
     }
 }
 
-/*Media queries para pantallas más pequeñas*/
-@media screen and (max-width: 480px) {
-    .contenedor.espacio{
-        padding: 25px 20px;
-        max-width: 85%;
-    }
-
-    .titulo{
-        font-size: 32px;
-        margin-bottom: 20px;
+/* ==========================================================================
+   RESPONSIVE DESIGN - MÓVIL
+   ========================================================================== */
+@media(max-width: 480px) {
+    .contenedor-login{
+        padding: 1.5rem;
     }
 }
