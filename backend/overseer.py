@@ -157,11 +157,13 @@ def start_oversee():
     if set_source_A == None:
         Command(Cmd.SOLAR_SW, 0).execute()
         Command(Cmd.WIND_SW, 0).execute()
-    set_load_A = Command(Cmd.LOAD_SW, 1)
     set_battery_A = Command(Cmd.BATTERY_SW, 1)
+    set_load_A = Command(Cmd.LOAD_SW, 1)
+    set_vca_A = Command(Cmd.VCA_SW, 0)
     set_source_B = None
     set_battery_B = None
     set_load_B = None
+    set_vca_B = None
     adjust_solar_B = None
     adjust_wind_B = None
     while True:
@@ -174,6 +176,9 @@ def start_oversee():
         if set_load_A != set_load_B:
             set_load_B = set_load_A
             set_load_A.execute()
+        if set_vca_A != set_vca_B:
+            set_vca_B = set_vca_A
+            set_vca_A.execute()
         if adjust_solar_A != adjust_solar_B:
             adjust_solar_B = adjust_solar_A
             adjust_solar_A.execute()
@@ -193,6 +198,8 @@ def start_oversee():
                                    adjusted_voltage_factor(measure.solar.voltage))
             adjust_wind_A = Command(Cmd.WIND_PWM,
                                   adjusted_voltage_factor(measure.wind.voltage))
+            if measure.load_status == False:
+                set_vca_A = Command(Cmd.VCA_SW, 1)
     # If not source has enought voltage then turn them both off
     if set_source_A == None:
         Command(Cmd.SOLAR_SW, 0).execute()

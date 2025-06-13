@@ -25,11 +25,6 @@ def verify_token(access_token: str = Cookie(None)):
         tokens = session.exec(statement).all()
         for token in tokens:
             valid_tokens.append(token.token)
-    print("+++++++++++++++++++++++++++++++")
-    print(valid_tokens)
-    print("=========")
-    print(access_token)
-    print("+++++++++++++++++++++++++++++++")
     if not access_token in valid_tokens:
         raise HTTPException(status_code=401, detail="Invalid Token")
     return True
