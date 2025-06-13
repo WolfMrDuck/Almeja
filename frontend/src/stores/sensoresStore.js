@@ -85,7 +85,7 @@ export const useSensoresStore = defineStore ('sensores', {
                 return {
                     nombre: 'CFE',
                     voltaje: '127',
-                    corriente: '10000VA'
+                    corriente: ''
                 };
             }
             return{
@@ -94,6 +94,19 @@ export const useSensoresStore = defineStore ('sensores', {
                 corriente: 0
             };
         },
+
+        promedioTemperaturas: (state) => {
+            const temps1 = state.mediciones.temperaturas.sensor1;
+            const temps2 = state.mediciones.temperaturas.sensor2;
+            const temps3 = state.mediciones.temperaturas.sensor3;
+
+            const todas = [...temps1, ...temps2, ...temps3];
+
+            if (todas.length === 0) return 0;
+
+            const suma = todas.reduce((acc, val) => acc + val, 0);
+            return (suma / todas.length).toFixed(2);
+        }
     },//Fin de los getters
 
     actions: {

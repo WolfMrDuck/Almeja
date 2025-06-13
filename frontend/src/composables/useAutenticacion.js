@@ -31,17 +31,23 @@ export function useAutenticacion() {
             ])
         }
         try {
+
+            document.cookie = `access_token=${token}; path=/`
             const respuesta = await fetchConTimeout(`${urlbase}/live/`, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
+                credentials: 'include'
             }, 10000)
 
+            console.log('Status de respuesta:', respuesta.status)
+
             if (!respuesta.ok) {
+                const errorText = await respuesta.text()
+                console.log('Error del servidor:', errorText)
+
                 if (respuesta.status === 401) {
                     throw new Error('Token inválido o expirado')
+                }else if (respuesta.status === 422){
+                    throw new Error('Error 422: El servidor no puede procesar el token. Verifica el formato.')
                 }
                 throw new Error(`Error de validación: ${respuesta.status}`)
             }
@@ -60,14 +66,12 @@ export function useAutenticacion() {
         }
 
         try {
-            await validarToken(token)
-
             establecerCookie('tokenAcceso', token, {})
-
+            await validarToken(token)
             tokenUsuario.value = token;
-        estaAutenticado.value = true;
+            estaAutenticado.value = true;
 
-        router.push('/panel');
+            router.push('/panel');
 
         return { exito: true, mensaje: 'Ingreso al sistema exitoso'};
 
@@ -99,6 +103,7 @@ export function useAutenticacion() {
         tieneAcceso,
         ingresarConToken,
         inicializarAuth,
-        cerrarSesion
+        cerrarSesion,
+        validarToken
     }
 }

@@ -13,7 +13,7 @@ import "@/assets/panel.css"
 const {cerrarSesion, inicializarAuth} = useAutenticacion();
 const {obtenerTodasLasCookies} = useCookies();
 const sensores = useSensoresStore();
-const { fuenteActiva, medicionActual } = storeToRefs(sensores);
+const { fuenteActiva, promedioTemperaturas,medicionActual } = storeToRefs(sensores);
 
 const router = useRouter();
 
@@ -239,7 +239,7 @@ onUnmounted(() => {
                 </svg>
               </div>
               <div class="valor-metricas">
-                {{ medicionActual.temperatura.promedio }} <span class="unidad">°C</span>
+                {{ sensores.promedioTemperaturas }} <span class="unidad">°C</span>
               </div>
               <p class="etiqueta-metricas">Temp. Promedio</p>
               <p class="rango-metricas">Rango: 0°C</p>

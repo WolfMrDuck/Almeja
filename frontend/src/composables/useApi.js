@@ -9,19 +9,6 @@ export function useApi() {
     const {obtenerCookie} = useCookies()
     const {cerrarSesion} = useAutenticacion()
 
-    const obtenerConfiguracion = () => {
-        const token = obtenerCookie('tokenAcceso')
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        }
-        if (token) {
-            config.headers['Authorization'] = `Bearer ${token}`
-        }
-        return config
-    }
-
     // Función para manejar respuestas
     const manejarRespuesta = async (respuesta) => {
         if (!respuesta.ok) {
@@ -48,7 +35,7 @@ export function useApi() {
 
             const respuesta = await fetch(url, {
                 method: 'GET',
-                ...obtenerConfiguracion()
+                credentials: 'include'
             })
 
             const datos = await manejarRespuesta(respuesta)
