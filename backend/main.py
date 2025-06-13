@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Cookie
 from fastapi.middleware.cors import CORSMiddleware
 from database import create_db, Solar, Wind, Battery, Measure, Token, engine
 from sqlmodel import Session, select
@@ -18,19 +18,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def verify_credencial(credential: str):
-    valid_credencial = []
+def verify_token(access_token: str = Cookie(None)):
+    valid_tokens = []
     with Session(engine) as session:
         statement = select(Token).where(Token.expired_at >= datetime.now())
         tokens = session.exec(statement).all()
         for token in tokens:
-            valid_credencial.append(token.token)
-    if not credential in valid_credencial:
+            valid_tokens.append(token.token)
+    print("+++++++++++++++++++++++++++++++")
+    print(valid_tokens)
+    print("=========")
+    print(access_token)
+    print("+++++++++++++++++++++++++++++++")
+    if not access_token in valid_tokens:
         raise HTTPException(status_code=401, detail="Invalid Token")
     return True
 
 @app.get("/measures/")
-async def read_measure_interval(start_date: str = "2025-05-08T12:00:00", credential: bool = Depends(verify_credencial)):
+async def read_measure_interval(start_date: str = "2025-05-08T12:00:00", access_token: bool = Depends(verify_token)):
     date = datetime.fromisoformat(start_date)
     payload = {
             "voltmeters": {
@@ -66,7 +71,7 @@ async def read_measure_interval(start_date: str = "2025-05-08T12:00:00", credent
     return payload
 
 @app.get("/live/")
-async def read_last_measure(credential: bool = Depends(verify_credencial)):
+async def read_last_measure(access_token: bool = Depends(verify_token)):
     payload = {
             "measure": int,
             "voltage": {
