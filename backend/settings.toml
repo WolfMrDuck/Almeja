@@ -12,3 +12,9 @@ voltage_threshold = 13
 cmd_max_retry = 3
 cmd_max_check_retry = 10
 cmd_sleep_ms = 400
+
+token_size = 12
+token_lifespan = 1
+
+battery_voltage_threshold = 10
+battery_max_temp = 40
