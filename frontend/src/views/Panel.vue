@@ -1,6 +1,5 @@
 <script setup>
 import { onMounted, onUnmounted, computed, ref } from 'vue';
-import { useRouter } from 'vue-router';
 import { useSensoresStore } from '@/stores/sensoresStore';
 import { useAutenticacion } from '@/composables/useAutenticacion';
 import { storeToRefs } from 'pinia';
@@ -13,9 +12,7 @@ import "@/assets/panel.css"
 const {cerrarSesion, inicializarAuth} = useAutenticacion();
 const {obtenerTodasLasCookies} = useCookies();
 const sensores = useSensoresStore();
-const { fuenteActiva, promedioTemperaturas,medicionActual } = storeToRefs(sensores);
-
-const router = useRouter();
+const { fuenteActiva, promedioTemperaturas, nivelCargaBaterias } = storeToRefs(sensores);
 
 //Manejo del header y menú
 const headerPequeno = ref(false);
@@ -239,7 +236,7 @@ onUnmounted(() => {
                 </svg>
               </div>
               <div class="valor-metricas">
-                {{ sensores.promedioTemperaturas }} <span class="unidad">°C</span>
+                {{ promedioTemperaturas }} <span class="unidad">°C</span>
               </div>
               <p class="etiqueta-metricas">Temp. Promedio</p>
               <p class="rango-metricas">Rango: 0°C</p>
@@ -250,7 +247,7 @@ onUnmounted(() => {
                 </svg>
               </div>
               <div class="valor-metricas">
-                {{ medicionActual.bateria.carga }} <span class="unidad">%</span>
+                {{ nivelCargaBaterias }} <span class="unidad">%</span>
               </div>
               <p class="etiqueta-metricas">Nivel de carga</p>
               <p class="rango-metricas">Rango:</p>

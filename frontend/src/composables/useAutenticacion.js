@@ -11,7 +11,7 @@ export function useAutenticacion() {
     const {establecerCookie, obtenerCookie, eliminarCookie} = useCookies()
     
     const inicializarAuth = () => {
-        const tokenGuardado = obtenerCookie('tokenAcceso')
+        const tokenGuardado = obtenerCookie('access_token')
         if (tokenGuardado) {
             tokenUsuario.value = tokenGuardado
             estaAutenticado.value = true
@@ -66,7 +66,7 @@ export function useAutenticacion() {
         }
 
         try {
-            establecerCookie('tokenAcceso', token, {})
+            establecerCookie('access_token', token, {})
             await validarToken(token)
             tokenUsuario.value = token;
             estaAutenticado.value = true;
@@ -78,14 +78,14 @@ export function useAutenticacion() {
         } catch (error) {
             tokenUsuario.value = ''
             estaAutenticado.value = false
-            eliminarCookie('tokenAcceso')
+            eliminarCookie('access_token')
             throw error
         }
             
     };
 
     const cerrarSesion = () => {
-        eliminarCookie('tokenAcceso')
+        eliminarCookie('access_token')
         tokenUsuario.value = ''
         estaAutenticado.value = false
         router.push('/login')

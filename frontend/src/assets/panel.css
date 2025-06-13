@@ -265,12 +265,14 @@
   display: flex;
   align-items: center;
   margin-bottom: 20px;
+  gap: 10px;
 }
 
 .etiqueta-tiempo{
   font-size: 12px;
   color: #6c757d;
-  font-weight: 500;
+  font-weight: 600;
+
 }
 
 .rango-tiempo{

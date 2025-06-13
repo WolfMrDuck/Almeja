@@ -34,9 +34,6 @@ export const useSensoresStore = defineStore ('sensores', {
                 sensor2: 0,
                 sensor3: 0
             },
-            bateria: {
-                carga: 0
-            },
             estatus: {
                 solar: false,
                 eolica: false,
@@ -56,6 +53,32 @@ export const useSensoresStore = defineStore ('sensores', {
         //Estados de carga de la API:
         cargandoAPI: (state) => state.api.cargando.valueOf,
         errorApi: (state) => state.api.error.value,
+
+        nivelCargaBaterias: (state) => {
+            const voltaje = state.medicionActual.voltaje.baterias;
+            const voltajeMax = 12.6;
+            const voltajeMin = 9.0;
+
+            // Calcular porcentaje
+            let porcentaje = ((voltaje - voltajeMin) / (voltajeMax - voltajeMin)) * 100;
+            porcentaje = Math.min(100, Math.max(0, porcentaje));
+
+            return porcentaje.toFixed(1); // redondear a 1 decimal
+        },
+
+        promedioTemperaturas: (state) => {
+            const { sensor1, sensor2, sensor3 } = state.medicionActual.temperatura;
+
+            const temperaturas = [sensor1, sensor2, sensor3];
+
+            // Si todas las temperaturas son 0, asumimos que no hay datos válidos
+            const temperaturasValidas = temperaturas.filter(temp => temp !== 0);
+
+            if (temperaturasValidas.length === 0) return 0;
+
+            const suma = temperaturasValidas.reduce((acc, val) => acc + val, 0);
+            return (suma / temperaturasValidas.length).toFixed(1);
+        },
 
         fuenteActiva: (state) => {
             const { solar, eolica, baterias, vca } = state.medicionActual.estatus;
@@ -83,9 +106,7 @@ export const useSensoresStore = defineStore ('sensores', {
             }
             if (vca) {
                 return {
-                    nombre: 'CFE',
-                    voltaje: '127',
-                    corriente: ''
+                    nombre: 'CFE'
                 };
             }
             return{
@@ -93,19 +114,6 @@ export const useSensoresStore = defineStore ('sensores', {
                 voltaje: 0,
                 corriente: 0
             };
-        },
-
-        promedioTemperaturas: (state) => {
-            const temps1 = state.mediciones.temperaturas.sensor1;
-            const temps2 = state.mediciones.temperaturas.sensor2;
-            const temps3 = state.mediciones.temperaturas.sensor3;
-
-            const todas = [...temps1, ...temps2, ...temps3];
-
-            if (todas.length === 0) return 0;
-
-            const suma = todas.reduce((acc, val) => acc + val, 0);
-            return (suma / todas.length).toFixed(2);
         }
     },//Fin de los getters
 
@@ -115,21 +123,26 @@ export const useSensoresStore = defineStore ('sensores', {
             this.cargando = true;
 
             //Cálculo de una hora antes: set-> modifica hora de un objeto Date, get-> trae la hora
-            // const horaAnterior = new Date();
-            // horaAnterior.setHours(horaAnterior.getHours() - 1);
-            // const horaActual = new Date();
+             const horaAnterior = new Date();
+             horaAnterior.setHours(horaAnterior.getHours() - 6);
+             const horaActual = new Date();
 
-            // this.horaInicio = horaAnterior.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false });
-            // this.horaFin = horaActual.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false });
-            // this.rangoHoras = `${this.horaInicio} - ${this.horaFin}`;
+             this.horaInicio = horaAnterior.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false });
+             this.horaFin = horaActual.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false });
+             this.rangoHoras = `${this.horaInicio} - ${this.horaFin}`;
+
+             console.log(this.horaInicio);
+             console.log(this.horaFin)
 
             //Descomentar lo anterior y eliminar lo siguiente:
-             const horaAnterior = new Date();
-             horaAnterior.setDate(horaAnterior.getDate() - 34);
-             horaAnterior.setHours(horaAnterior.getHours() - 1);
+            //  const horaAnterior = new Date();
+            //  horaAnterior.setDate(horaAnterior.getDate() - 34);
+            //  horaAnterior.setHours(horaAnterior.getHours() - 1);
 
             try {
                 const datos = await this.api.getApi('/measures/', {start_date: horaAnterior.toISOString()} );
+
+                console.log('datos measure:', datos)
                 
                 // Procesar los datos según la estructura de la API
                 this.mediciones.voltajes.solar = datos.voltmeters.solar;
@@ -154,6 +167,7 @@ export const useSensoresStore = defineStore ('sensores', {
                 
                 const dato = await this.api.getApi('/live/');
 
+                console.log('datos actuales:', dato)
 
                 this.medicionActual.voltaje.solar = dato.voltage.solar;
                 this.medicionActual.voltaje.eolica = dato.voltage.wind;
@@ -165,7 +179,6 @@ export const useSensoresStore = defineStore ('sensores', {
                 this.medicionActual.temperatura.sensor1 = dato.temperature.temp1;
                 this.medicionActual.temperatura.sensor2 = dato.temperature.temp2;
                 this.medicionActual.temperatura.sensor3 = dato.temperature.temp3;
-                this.medicionActual.bateria.carga = dato.battery;
 
                 this.medicionActual.estatus.solar = dato.status.solar;
                 this.medicionActual.estatus.eolica = dato.status.wind;
