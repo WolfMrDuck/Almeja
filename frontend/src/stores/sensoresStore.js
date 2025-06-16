@@ -106,7 +106,9 @@ export const useSensoresStore = defineStore ('sensores', {
             }
             if (vca) {
                 return {
-                    nombre: 'CFE'
+                    nombre: 'CFE',
+                    estado: 'Conectado',
+                    tipo: 'red_electrica'
                 };
             }
             return{
@@ -124,7 +126,7 @@ export const useSensoresStore = defineStore ('sensores', {
 
             //Cálculo de una hora antes: set-> modifica hora de un objeto Date, get-> trae la hora
              const horaAnterior = new Date();
-             horaAnterior.setHours(horaAnterior.getHours() - 6);
+             horaAnterior.setHours(horaAnterior.getHours() - 96);
              const horaActual = new Date();
 
              this.horaInicio = horaAnterior.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false });

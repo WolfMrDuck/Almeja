@@ -10,23 +10,31 @@ const emit = defineEmits(['close'])
 const secciones = [
     {
         titulo: 'Información General',
-        contenido: 'Este panel muestra datos relacionados con las fuentes de energía renovable.'
+        contenido: 'Este panel permite visualizar información en tiempo real sobre el sistema de energías renovables. Incluye dos tarjetas informativas. Además, se ofrecen dos gráficas históricas.'
+    },
+    {
+        titulo: 'Tarjeta: "Fuente Activa"',
+        contenido: 'Esta tarjeta indica cual de las fuentes está activa, así como los valores de voltaje y corriente correspondientes a dicha fuente. El nombre de la fuente puede cambiar a cualquiera de las siguientes: Panel Solar, Aerogenerador, Banco de Baterías y CFE. Para el caso de la CFE, no se manejan los valores de voltaje y corriente.'
+    },
+    {
+        titulo: 'Tarjeta: "Banco de Baterías"',
+        contenido: 'Esta tarjeta muestra dos datos importantes para el estado del banco de baterías: la temperatura promedio y el nivel de carga.'
     },
     {
         titulo: 'Gráfica de Voltajes',
-        contenido: 'Muestra los voltajes registrados por el sistema dentro de la última hora. El valor máximo debe ser de 12V.'
+        contenido: 'La gráfica de voltajes muestra las mediciones de cada fuente a lo largo de la última hora.'
     },
     {
-        titulo: 'Corriente',
-        contenido: 'Indica la corriente que fluye por el sistema. Corriente negativa indica que las baterías se están descargando.'
+        titulo: 'Gráfica de Temperaturas',
+        contenido: 'La gráfica de Temperaturas muestra las mediciones de cada sensor (instalados en el banco) a lo largo de la última hora.'
     },
     {
-        titulo: 'Gráfica de Temperaturas.',
-        contenido: 'Monitorea la temperatura del banco de baterías. Este muestra el comportamiento registrado dentro de la última hora.'
+        titulo: '¿Cómo interactuar con las gráficas?',
+        contenido: 'Si se encuentra en una computadora, ya sea de escritorio o laptop, pase el cursor por encima de la gráfica y se mostrará el tiempo en minutos, así como el voltaje de cada fuente. En caso de que se encuentre en un dispositivo móvil, solo oprima el área donde desee ver la información del gráfico. Si desea eliminar una línea del gráfico, haga "click" en cualquiera de los nombres de las fuentes que aparecen debajo del titulo "Voltajes". Para hacerla aparecer, solo haga "click" nuevamente en el nombre, espere a que se actualice la gráfica o haga "click" en el botón de acción "Actualizar".'
     },
     {
-        titulo: 'Banco de Baterías',
-        contenido: 'Muestra tanto la temperatura promedio como el nivel de carga del banco.'
+        titulo: 'Botones de acción principales',
+        contenido: 'Estos se encuentran justo a lado del mensaje de bienvenida al panel. Cada uno tiene un objetivo distinto: "Actualizar" Permite recargar los datos de todo el panel; "Info." abre esta ventana con una descripción general del panel y sus componentes principales; "Cerrar Sesión" Finaliza la sesión actual y te redirige a la pantalla de ingreso de token.'
     },
 ]
 
@@ -121,6 +129,7 @@ const seccionSelecionada = ref(secciones[0])
   width: 65%;
   padding: 1.5rem;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 .cabecera-modal{
   display: flex;
@@ -151,6 +160,7 @@ const seccionSelecionada = ref(secciones[0])
     height: auto;
     max-height: 80%;
     overflow: hidden;
+    overflow-y: auto;
   }
 
   .sidebar-modal {
@@ -162,6 +172,7 @@ const seccionSelecionada = ref(secciones[0])
 
   .cuerpo-modal {
     width: 100%;
+    overflow-y: auto;
   }
 
   .cabecera-modal {

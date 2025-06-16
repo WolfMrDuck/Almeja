@@ -149,7 +149,15 @@ onUnmounted(() => {
           </div>
           <div class="contenedor-metricas">
 
-            <div class="item-metricas">
+            <div v-if="fuenteActiva.tipo === 'red_electrica'" class="item-metricas">
+              <div class="valor-metricas">
+                {{ fuenteActiva.estado }}
+              </div>
+              <p class="etiqueta-metricas">Estado de la red</p>
+            </div> <!-- Caso de CFE-->
+
+           
+            <div v-else class="item-metricas">
               <div class="icono-metricas">
                 <svg xmlns="http://www.w3.org/2000/svg" 
                   width="32" 
@@ -167,10 +175,10 @@ onUnmounted(() => {
                 {{fuenteActiva.voltaje}} <span class="unidad">V</span>
               </div>
               <p class="etiqueta-metricas">Voltaje actual</p>
-              <p class="rango-metricas">Rango: 12-13V</p>
+              <!-- <p class="rango-metricas">Rango: 12-13V</p> -->
             </div>
 
-            <div class="item-metricas">
+            <div v-if="fuenteActiva.tipo !== 'red_electrica'" class="item-metricas">
               <div class="icono-metricas">
                 <svg xmlns="http://www.w3.org/2000/svg" 
                 width="32" 
@@ -193,9 +201,9 @@ onUnmounted(() => {
                 {{ fuenteActiva.corriente }} <span class="unidad">A</span>
               </div>
               <p class="etiqueta-metricas">Corriente actual</p>
-              <p class="rango-metricas">Rango: 0-2A</p>
+              <!-- <p class="rango-metricas">Rango: 0-2A</p> -->
             </div>
-          </div><!-- contenedor de iconos -->
+          </div><!-- contenedor metricas -->
         </div> <!-- fin del datos fuente actual -->
 
         <div class="card sombra fondoBlanco grafica-card g2">
@@ -239,7 +247,7 @@ onUnmounted(() => {
                 {{ promedioTemperaturas }} <span class="unidad">°C</span>
               </div>
               <p class="etiqueta-metricas">Temp. Promedio</p>
-              <p class="rango-metricas">Rango: 0°C</p>
+              <!-- <p class="rango-metricas">Rango: 0°C</p> -->
             </div>
             <div class="item-metricas">
               <div class="icono-metricas">
@@ -250,7 +258,7 @@ onUnmounted(() => {
                 {{ nivelCargaBaterias }} <span class="unidad">%</span>
               </div>
               <p class="etiqueta-metricas">Nivel de carga</p>
-              <p class="rango-metricas">Rango:</p>
+              <!-- <p class="rango-metricas">Rango:</p> -->
             </div>
           </div> 
         </div><!-- Fin g4 -->
