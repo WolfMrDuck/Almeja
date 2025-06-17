@@ -1,71 +1,191 @@
 <script setup>
-  import { onMounted, computed } from 'vue';
-  import GraficaLinea from '@/components/GraficaLinea.vue';
-  import GraficaPastel from '@/components/GraficaPastel.vue';
-  import { useSensoresStore } from '@/stores/sensoresStore';
-  import BotonBase from '@/components/BotonBase.vue';
-  import "@/assets/panel.css"
+import { onMounted, onUnmounted, computed, ref } from 'vue';
+import { useSensoresStore } from '@/stores/sensoresStore';
+import { useAutenticacion } from '@/composables/useAutenticacion';
+import { storeToRefs } from 'pinia';
+import { useCookies } from '@/composables/useCookies';
+import LineChart from '@/components/LineChart.vue';
+import BotonBase from '@/components/BotonBase.vue';
+import ModalAyuda from '@/components/ModalAyuda.vue';
+import "@/assets/panel.css"
 
-  const sensoresStore = useSensoresStore();
+const {cerrarSesion, inicializarAuth} = useAutenticacion();
+const {obtenerTodasLasCookies} = useCookies();
+const sensores = useSensoresStore();
+const { fuenteActiva, promedioTemperaturas, nivelCargaBaterias } = storeToRefs(sensores);
 
-  onMounted(() => {
-    sensoresStore.cargarDatos()
-  })
+//Manejo del header y menú
+const headerPequeno = ref(false);
+const menuAbierto = ref(false);
+const mostrarInfo = ref(false);
 
-  const voltajeSolar = sensoresStore.ultimosDatos.find(v => v.titulo.includes('Voltaje Solar'))
-  const corrienteFuente = sensoresStore.ultimosDatos.find(v => v.titulo.includes('Corriente Fuente'))
-   
+const manejarScroll = () => {
+  headerPequeno.value = window.scrollY > 50
+};
 
+const alternarMenu = () => {
+  menuAbierto.value = !menuAbierto.value
+};
+
+  // Cerrar menú al hacer clic fuera
+const cerrarMenuFuera = (event) => {
+  const boton = event.target.closest('.boton-menu')
+  if (!boton && menuAbierto.value) {
+    menuAbierto.value = false
+  }
+};
+
+const actualizarGraficas = async() => {
+  await sensores.cargarDatos();
+};
+
+const actualizarTarjetas = async() => {
+  await sensores.cargarValorActual();
+};
+
+const actualizarTodo = async() => {
+  await Promise.all([
+   sensores.cargarDatos(),
+   sensores.cargarValorActual()
+  ]);
+};
+
+let intervaloGraficas;
+let intervaloTarjetas;
+
+onMounted(() => {
+  inicializarAuth();
+  console.log("Montado el panel");
+  console.log("Token:", obtenerTodasLasCookies());
+
+  actualizarGraficas();
+  actualizarTarjetas();
+
+  intervaloGraficas = setInterval (actualizarGraficas, 60_000); // cada minuto
+  intervaloTarjetas = setInterval (actualizarTarjetas, 30_000); // cada 30 segundos
+
+  window.addEventListener('scroll', manejarScroll);
+  document.addEventListener('click', cerrarMenuFuera);
+});
+
+onUnmounted(() => {
+  clearInterval(intervaloGraficas);
+  clearInterval(intervaloTarjetas);
+
+  window.removeEventListener('scroll', manejarScroll);
+  document.removeEventListener('click', cerrarMenuFuera);
+})
+ 
 </script>
 
 <template>
     <div class="contenedorGral">
-      <div class="encabezado sombra">
+      <div class="header" :class="{pequeno: headerPequeno}">
+        <div class="contenido-header sombra fondoBlanco">
           <h1 class="bienvenida">BIENVENIDO AL PANEL</h1>
-          <button class="boton-logout">
-            <svg xmlns="http://www.w3.org/2000/svg" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke=#006B9F 
-              stroke-linecap="round" 
-              stroke-linejoin="round"
-              width="36" 
-              height="36" 
-              stroke-width="1">
-              <path d="M10 8v-2a2 2 0 0 1 2 -2h7a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-2"></path>
-              <path d="M15 12h-12l3 -3"></path>
-              <path d="M6 15l-3 -3"></path>
-            </svg> <!-- logout -->
-          </button>
-      </div> <!-- fin del encabezado -->
 
-      <div class="panel">   
-
-        <div class="grid">
-
-          <div class="card g1">
-            <div class="card sombra-card icono">
-              <svg xmlns="http://www.w3.org/2000/svg" 
-                width="32" 
-                height="32" 
-                viewBox="0 0 24 24" 
-                fill="none" stroke="#006b9f" 
-                stroke-width="1.5" 
-                stroke-linecap="round" 
-                stroke-linejoin="round" 
-                class="lucide lucide-zap-icon lucide-zap">
-                <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>
+          <div class="botones-escritorio">
+            <BotonBase class="boton-escritorio" tipo="secundario" @click="actualizarTodo">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#006b9f" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-refresh-cw-icon lucide-refresh-cw">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>
               </svg>
-              <p class="datos">{{voltajeSolar.valor}} {{ voltajeSolar.unidad }}</p>
+              Actualizar
+            </BotonBase>
+            
+            <BotonBase class="boton-escritorio" tipo="primario" @click="mostrarInfo = true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fefdff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-help-icon lucide-circle-help"><circle cx="12" cy="12" r="10"/>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>
+              </svg>
+              Info.
+            </BotonBase>
+          
+            <BotonBase class="boton-escritorio" tipo="secundario" @click="cerrarSesion">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#006b9f" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out-icon lucide-log-out">
+                <path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              </svg>
+              Cerrar Sesión
+            </BotonBase>
+          </div>
+          <!-- Menú hamburguesa para vista movil -->
+          <button class="boton-menu" :class="{abierto: menuAbierto}" @click="alternarMenu"> <!-- este botón es diferente al componente BotonBase -->
+              <div class="linea"></div>
+              <div class="linea"></div>
+              <div class="linea"></div>
+
+              <div class="menu-desplegable" :class="{activo: menuAbierto}">
+                <ul class="lista-menu">
+                  <li class="opcion-menu" @click="actualizarTodo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#006b9f" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-refresh-cw-icon lucide-refresh-cw">
+                      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>
+                    </svg>
+                    Actualizar panel
+                  </li>
+                  <li class="opcion-menu" @click="mostrarInfo = true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#006b9f" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-help-icon lucide-circle-help"><circle cx="12" cy="12" r="10"/>
+                      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>
+                    </svg>
+                    Info.
+                  </li>
+                  <li class="opcion-menu" @click="cerrarSesion">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#006b9f" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out-icon lucide-log-out">
+                      <path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    </svg>
+                    Cerrar Sesión
+                  </li>
+                </ul>
+              </div>
+          </button> <!-- fin menú hamburguesa -->
+        </div> 
+      </div><!-- fin del header -->
+    
+      <ModalAyuda :esVisible="mostrarInfo" @close="mostrarInfo = false"/>
+
+      <!-- Cuerpo del panel -->
+      <div class="grid">
+
+        <div class="card sombra borde fondoBlanco g1">
+          <div class="encabezado-card">
+            <h3 class="titulo-card">Fuente Activa: {{fuenteActiva.nombre}}</h3>
+          </div>
+          <div class="contenedor-metricas">
+
+            <div v-if="fuenteActiva.tipo === 'red_electrica'" class="item-metricas">
+              <div class="valor-metricas">
+                {{ fuenteActiva.estado }}
+              </div>
+              <p class="etiqueta-metricas">Estado de la red</p>
+            </div> <!-- Caso de CFE-->
+
+           
+            <div v-else class="item-metricas">
+              <div class="icono-metricas">
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                  width="32" 
+                  height="32" 
+                  viewBox="0 0 24 24" 
+                  fill="none" stroke="#f39c12" 
+                  stroke-width="1.5" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round" 
+                  class="lucide lucide-zap-icon lucide-zap">
+                  <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>
+                </svg>
+              </div>
+              <div class="valor-metricas">
+                {{fuenteActiva.voltaje}} <span class="unidad">V</span>
+              </div>
+              <p class="etiqueta-metricas">Voltaje actual</p>
+              <!-- <p class="rango-metricas">Rango: 12-13V</p> -->
             </div>
 
-            <div class="card sombra-card icono">
-              <svg xmlns="http://www.w3.org/2000/svg" 
+            <div v-if="fuenteActiva.tipo !== 'red_electrica'" class="item-metricas">
+              <div class="icono-metricas">
+                <svg xmlns="http://www.w3.org/2000/svg" 
                 width="32" 
                 height="32" 
                 viewBox="0 0 24 24" 
                 fill="none" 
-                stroke="#006b9f" 
+                stroke="#3498db" 
                 stroke-width="1.5" 
                 stroke-linecap="round" 
                 stroke-linejoin="round" 
@@ -75,61 +195,91 @@
                 <path d="M12 17v5"/>
                 <path d="M5 8h14"/>
                 <path d="M6 11V8h12v3a6 6 0 1 1-12 0Z"/>
-              </svg>
-              <p class="datos">{{corrienteFuente.valor}} {{ corrienteFuente.unidad }}</p>
+                </svg>
+              </div>
+              <div class="valor-metricas">
+                {{ fuenteActiva.corriente }} <span class="unidad">A</span>
+              </div>
+              <p class="etiqueta-metricas">Corriente actual</p>
+              <!-- <p class="rango-metricas">Rango: 0-2A</p> -->
             </div>
+          </div><!-- contenedor metricas -->
+        </div> <!-- fin del datos fuente actual -->
 
-            <div class="card sombra-card icono">
-              <svg xmlns="http://www.w3.org/2000/svg" 
-                width="32" 
-                height="32" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="#006b9f" 
-                stroke-width="1.5" 
-                stroke-linecap="round" 
-                stroke-linejoin="round" 
-                class="lucide lucide-thermometer-icon lucide-thermometer">
-                <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>
-              </svg>
-              <p class="datos">Temp</p>
-            </div>
+        <div class="card sombra fondoBlanco grafica-card g2">
+          <div class="tiempo-info">
+              <span class="etiqueta-tiempo">Datos de:</span>
+              <span class="rango-tiempo">{{ sensores.rangoHoras }}</span>
           </div>
+            <LineChart
+              :datasets="[
+                sensores.mediciones.voltajes.solar,
+                sensores.mediciones.voltajes.eolica,
+                sensores.mediciones.voltajes.baterias
+              ]"
+              :series-names="['Solar (V)', 'Eólica (V)', 'Baterías (V)']"
+              title="Voltajes"
+              x-axis-type="time-relative"
+            />
+        </div>
 
-          <div class="card sombra-card g2">
-            <!-- <h2 class="subtitle">Grafica voltajes</h2> -->
-            <GraficaLinea
-              :etiquetas="sensoresStore.etiquetasVoltajes"
-              :datasets="sensoresStore.datosVoltajes"
-              titulo="Voltajes (última hora)"
-            />
+        <div class="card g4 sombra fondoBlanco borde">
+          <div class="encabezado-card">
+              <h3 class="titulo-card">Banco de Baterías</h3>
           </div>
-          
-          <div class="card g3">
-            <div class="contenedor_panel">
-              <BotonBase tipo="primario" tamano="grande">
-                Actualizar
-              </BotonBase>  
+          <div class="contenedor-temp">
+            <div class="item-metricas">
+              <div class="icono-metricas">
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                  width="32" 
+                  height="32" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="#3498db" 
+                  stroke-width="1.5" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round" 
+                  class="lucide lucide-thermometer-icon lucide-thermometer">
+                  <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>
+                </svg>
+              </div>
+              <div class="valor-metricas">
+                {{ promedioTemperaturas }} <span class="unidad">°C</span>
+              </div>
+              <p class="etiqueta-metricas">Temp. Promedio</p>
+              <!-- <p class="rango-metricas">Rango: 0°C</p> -->
             </div>
-          </div>
-          
-          <div class="card sombra-card g4">
-            <!-- <h2 class="subtitle">Temperaturas de Banco de Baterías</h2> -->
-            <GraficaLinea
-              :etiquetas="sensoresStore.etiquetasVoltajes"
-              :datasets="sensoresStore.datosTemperaturas"
-              titulo="Temperaturas (última hora)"
-            />
-          </div>
-          
-          <div class="card g5">
-            <div class="contenedor_panel">
-              <BotonBase tipo="primario" tamano="grande">
-                Actualizar
-              </BotonBase>  
+            <div class="item-metricas">
+              <div class="icono-metricas">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-battery-icon lucide-battery"><rect width="16" height="10" x="2" y="7" rx="2" ry="2"/><line x1="22" x2="22" y1="11" y2="13"/>
+                </svg>
+              </div>
+              <div class="valor-metricas">
+                {{ nivelCargaBaterias }} <span class="unidad">%</span>
+              </div>
+              <p class="etiqueta-metricas">Nivel de carga</p>
+              <!-- <p class="rango-metricas">Rango:</p> -->
             </div>
+          </div> 
+        </div><!-- Fin g4 -->
+        
+        <div class="card sombra fondoBlanco grafica-card g5">
+          <div class="tiempo-info">
+              <span class="etiqueta-tiempo">Datos de:</span>
+              <span class="rango-tiempo">{{ sensores.rangoHoras }}</span>
           </div>
-        </div> <!-- Fin div grid -->
-      </div> <!-- fin div panel -->
+            <LineChart
+            :datasets="[
+              sensores.mediciones.temperaturas.sensor1,
+              sensores.mediciones.temperaturas.sensor2,
+              sensores.mediciones.temperaturas.sensor2
+            ]"
+            :series-names="['Sensor 1 (°C)', 'Sensor 2 (°C)', 'Sensor 3 (°C)']"
+            :colors="['#13a8a8', '#1890ff']"
+            title="Temperaturas"
+            x-axis-type="time-relative"
+            />
+        </div><!-- Fin g5 -->
+      </div> <!-- Fin div grid -->
     </div> <!-- Fin del contenedor general -->
 </template>

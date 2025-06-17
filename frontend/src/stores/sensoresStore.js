@@ -1,15 +1,16 @@
 import { defineStore } from "pinia";
+import { useApi } from "@/composables/useApi";
 
 export const useSensoresStore = defineStore ('sensores', {
     state: () => ({
+        // Instancia del composable API
+        api: useApi(),
+
+        //Resto de datos
         mediciones: {
             voltajes: {
                 solar: [],
                 eolica: [],
-                baterias: []
-            },
-            corrientes: {
-                fuente: [],
                 baterias: []
             },
             temperaturas: {
@@ -18,157 +19,179 @@ export const useSensoresStore = defineStore ('sensores', {
                 sensor3: []
             }
         },
-        cargando: false,
-        error: null,
-        apiURL: 'http://url-api/datos'
+        medicionActual: {
+            voltaje: {
+                solar: 0,
+                eolica: 0,
+                baterias: 0
+            },
+            corriente: {
+                fuente: 0,
+                baterias: 0
+            },
+            temperatura: {
+                sensor1: 0,
+                sensor2: 0,
+                sensor3: 0
+            },
+            estatus: {
+                solar: false,
+                eolica: false,
+                baterias: false,
+                carga: false,
+                vca: false
+            }
+        },
+        horaInicio: '',
+        horaFin: '',
+        rangoHoras: '',
+        error: null
     }),//Fin de los estados (datos que se manejan globalmente)
 
     getters: {
 
-        etiquetasVoltajes: (state) => {
-            //suponiendo que todos los datos tendrán la misma hora y orden de registro:
-            //de ser así, entonces basta con usar las etiquetas de una fuente.
-            state.mediciones.voltajes.solar.map(v => v.tiempo)
+        //Estados de carga de la API:
+        cargandoAPI: (state) => state.api.cargando.valueOf,
+        errorApi: (state) => state.api.error.value,
+
+        nivelCargaBaterias: (state) => {
+            const voltaje = state.medicionActual.voltaje.baterias;
+            const voltajeMax = 12.6;
+            const voltajeMin = 9.0;
+
+            // Calcular porcentaje
+            let porcentaje = ((voltaje - voltajeMin) / (voltajeMax - voltajeMin)) * 100;
+            porcentaje = Math.min(100, Math.max(0, porcentaje));
+
+            return porcentaje.toFixed(1); // redondear a 1 decimal
         },
 
-        //Para voltajes...
-        datosVoltajes: (state) => [
-            {
-                label: 'Fuente Solar (V)',
-                data: state.mediciones.voltajes.solar.map(v => v.valor),
-                borderColor: 'rgb(200, 181, 54)',
-                backgroundColor: 'rgba(200, 181, 54, 0.1)',
-                tension: 0.1
-            },
-            {
-                label: 'Fuente Eólica (V)',
-                data: state.mediciones.voltajes.eolica.map(v => v.valor),
-                borderColor: 'rgb(99, 182, 255)',
-                backgroundColor: 'rgba(99, 182, 255, 0.1)',
-                tension: 0.1
-            },
-            {
-                label: 'Banco de Baterías (V)',
-                data: state.mediciones.voltajes.baterias.map(v => v.valor),
-                borderColor: 'rgb(54, 235, 166)',
-                backgroundColor: 'rgba(54, 235, 166, 0.1)',
-                tension: 0.1
-            }
-        ],
-        
-        //Para temperaturas...
-        datosTemperaturas: (state) => [
-            {
-                label: 'Sensor 1 (°C)',
-                data: state.mediciones.temperaturas.sensor1.map(t => t.valor),
-                borderColor: 'rgb(54, 235, 166)',
-                backgroundColor: 'rgba(54, 235, 166, 0.1)',
-                tension: 0.1
-            },
-            {
-                label: 'Sensor 2 (°C)',
-                data: state.mediciones.temperaturas.sensor2.map(t => t.valor),
-                borderColor: 'rgb(54, 235, 166)',
-                backgroundColor: 'rgba(54, 235, 166, 0.1)',
-                tension: 0.1
-            },
-            {
-                label: 'Sensor 3 (°C)',
-                data: state.mediciones.temperaturas.sensor3.map(t => t.valor),
-                borderColor: 'rgb(54, 235, 166)',
-                backgroundColor: 'rgba(54, 235, 166, 0.1)',
-                tension: 0.1
-            }
-        ],
+        promedioTemperaturas: (state) => {
+            const { sensor1, sensor2, sensor3 } = state.medicionActual.temperatura;
+
+            const temperaturas = [sensor1, sensor2, sensor3];
+
+            // Si todas las temperaturas son 0, asumimos que no hay datos válidos
+            const temperaturasValidas = temperaturas.filter(temp => temp !== 0);
+
+            if (temperaturasValidas.length === 0) return 0;
+
+            const suma = temperaturasValidas.reduce((acc, val) => acc + val, 0);
+            return (suma / temperaturasValidas.length).toFixed(1);
+        },
+
+        fuenteActiva: (state) => {
+            const { solar, eolica, baterias, vca } = state.medicionActual.estatus;
             
-       
-
-        ultimosDatos: (state) => {
-            //Funcion para obtener el ultimo valor de los arreglos
-            const obtenerUltimo = arr => arr.at(-1) ?? {valor: 0, tiempo: '--'}
-        
-            return [
-                {
-                    titulo: 'Voltaje Solar',
-                    valor: obtenerUltimo(state.mediciones.voltajes.solar).valor,
-                    hora: obtenerUltimo(state.mediciones.voltajes.solar).tiempo,
-                    unidad: 'V'
-                },
-                {
-                    titulo: 'Voltaje Eólico',
-                    valor: obtenerUltimo(state.mediciones.voltajes.eolica).valor,
-                    hora: obtenerUltimo(state.mediciones.voltajes.eolica).tiempo,
-                    unidad: 'V'
-                },
-                {
-                    titulo: 'Voltaje Baterias',
-                    valor: obtenerUltimo(state.mediciones.voltajes.baterias).valor,
-                    hora: obtenerUltimo(state.mediciones.voltajes.baterias).tiempo,
-                    unidad: 'V'
-                },
-                {
-                    titulo: 'Corriente Fuente',
-                    valor: obtenerUltimo(state.mediciones.corrientes.fuente).valor,
-                    hora: obtenerUltimo(state.mediciones.corrientes.fuente).tiempo,
-                    unidad: 'A'
-                },
-                {
-                    titulo: 'Corriente Baterias',
-                    valor: obtenerUltimo(state.mediciones.corrientes.baterias).valor,
-                    hora: obtenerUltimo(state.mediciones.corrientes.baterias).tiempo,
-                    unidad: 'A'
-                }
-
-            ]
+            if (solar) {
+                return {
+                    nombre: 'Panel Solar',
+                    voltaje: state.medicionActual.voltaje.solar,
+                    corriente: state.medicionActual.corriente.fuente
+                };
+            }
+            if (eolica) {
+                return {
+                    nombre: 'Aerogenerador',
+                    voltaje: state.medicionActual.voltaje.eolica,
+                    corriente: state.medicionActual.corriente.fuente
+                };
+            }
+            if (baterias) {
+                return {
+                    nombre: 'Banco de Baterías',
+                    voltaje: state.medicionActual.voltaje.baterias,
+                    corriente: state.medicionActual.corriente.baterias
+                };
+            }
+            if (vca) {
+                return {
+                    nombre: 'CFE',
+                    estado: 'Conectado',
+                    tipo: 'red_electrica'
+                };
+            }
+            return{
+                nombre: 'Ninguna',
+                voltaje: 0,
+                corriente: 0
+            };
         }
-
     },//Fin de los getters
 
     actions: {
+
         async cargarDatos(){
             this.cargando = true;
 
             //Cálculo de una hora antes: set-> modifica hora de un objeto Date, get-> trae la hora
-            const horaAnterior = new Date();
-            horaAnterior.setHours(horaAnterior.getHours() - 1)
+             const horaAnterior = new Date();
+             horaAnterior.setHours(horaAnterior.getHours() - 1);
+             const horaActual = new Date();
+
+             this.horaInicio = horaAnterior.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false });
+             this.horaFin = horaActual.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false });
+             this.rangoHoras = `${this.horaInicio} - ${this.horaFin}`;
+
+             console.log(this.horaInicio);
+             console.log(this.horaFin)
+
+            //Descomentar lo anterior y eliminar lo siguiente:
+            //  const horaAnterior = new Date();
+            //  horaAnterior.setDate(horaAnterior.getDate() - 34);
+            //  horaAnterior.setHours(horaAnterior.getHours() - 1);
 
             try {
+                const datos = await this.api.getApi('/measures/', {start_date: horaAnterior.toISOString()} );
 
-                const respuesta = await fetch(`${this.apiURL}?from=${horaAnterior.toISOString()}`);
-                //Verificamos si fue exitosa la respuesta
-                if (!respuesta.ok) {
-                    throw new Error('Error al obtener los datos');
-                }
-                //Convertimos la respuesta a json
-                const datos = await respuesta.json();
+                console.log('datos measure:', datos)
                 
-                this.procesarDatos(datos);
+                // Procesar los datos según la estructura de la API
+                this.mediciones.voltajes.solar = datos.voltmeters.solar;
+                this.mediciones.voltajes.eolica = datos.voltmeters.wind;
+                this.mediciones.voltajes.baterias = datos.voltmeters.battery;
 
+                this.mediciones.temperaturas.sensor1 = datos.thermometers.temp1;
+                this.mediciones.temperaturas.sensor2 = datos.thermometers.temp2;
+                this.mediciones.temperaturas.sensor3 = datos.thermometers.temp3;
+                
                 this.error = null;
-
             } catch (error) {
                 console.log('Ocurrió un error: ', error);
                 this.error = error.message;
             } finally {
                 this.cargando = false;
             }
-            
         },
 
-        procesarDatos(datos) {
-            //suponiendo que el json tendrá una forma parecida al state y los datos podrían ser así:
-            //"solar": [{"valor":3.1, "tiempo":"10:00"},{"valor":3.1, "tiempo":"10:00"}...]
-            this.mediciones.voltajes.solar = datos.voltmeters.solar.map(item => ({ valor: item.valor, tiempo: item.tiempo }));
-            this.mediciones.voltajes.eolica = datos.voltmeters.wind.map(item => ({ valor: item.valor, tiempo: item.tiempo }));
-            this.mediciones.voltajes.baterias = datos.voltmeters.baterias.map(item => ({ valor: item.valor, tiempo: item.tiempo }));
+         async cargarValorActual(){
+            try {
+                
+                const dato = await this.api.getApi('/live/');
 
-            this.mediciones.corrientes.fuente = datos.ammeters.source.map(item => ({ valor: item.valor, tiempo: item.tiempo }));
-            this.mediciones.corrientes.baterias = datos.ammeters.batt.map(item => ({ valor: item.valor, tiempo: item.tiempo }));
+                console.log('datos actuales:', dato)
 
-            this.mediciones.temperaturas.sensor1 = datos.thermometers.therm1.map(item => ({ valor: item.valor, tiempo: item.tiempo }));
-            this.mediciones.temperaturas.sensor2 = datos.thermometers.therm2.map(item => ({ valor: item.valor, tiempo: item.tiempo }));
-            this.mediciones.temperaturas.sensor3 = datos.thermometers.therm3.map(item => ({ valor: item.valor, tiempo: item.tiempo }));
+                this.medicionActual.voltaje.solar = dato.voltage.solar;
+                this.medicionActual.voltaje.eolica = dato.voltage.wind;
+                this.medicionActual.voltaje.baterias = dato.voltage.battery;
+
+                this.medicionActual.corriente.fuente = dato.current.source;
+                this.medicionActual.corriente.baterias = dato.current.battery;
+
+                this.medicionActual.temperatura.sensor1 = dato.temperature.temp1;
+                this.medicionActual.temperatura.sensor2 = dato.temperature.temp2;
+                this.medicionActual.temperatura.sensor3 = dato.temperature.temp3;
+
+                this.medicionActual.estatus.solar = dato.status.solar;
+                this.medicionActual.estatus.eolica = dato.status.wind;
+                this.medicionActual.estatus.baterias = dato.status.battery;
+                this.medicionActual.estatus.carga = dato.status.load;
+                this.medicionActual.estatus.vca = dato.status.vca;
+
+
+            } catch (error) {
+                console.error("Error cargando el valor actual: ", error)
+            }
         }
     }//Fin de actions
-
 })
