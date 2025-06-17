@@ -7,7 +7,8 @@ from sqlmodel import Session
 from config import settings
 
 def ingest_data(json_data):
-    charging_status = json_data["switches"]["solar"] | json_data["switches"]["wind"]
+    charging_status = json_data["switches"]["solar"] or json_data["switches"]["wind"]
+    charging_status = charging_status and json_data["switches"]["battery"]
     with Session(engine) as session:
         solar_measure = Solar(
                 status=json_data["switches"]["solar"],
@@ -75,3 +76,6 @@ def start_ingest():
     # Close the serial port
     ser.close()
     info("Serial connection ended")
+
+if __name__ == "__main__":
+    start_ingest()

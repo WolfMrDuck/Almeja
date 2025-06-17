@@ -1,4 +1,4 @@
-from logging import info, error, debug, warning, basicConfig, DEBUG
+from logging import error, debug
 from database import Solar, Wind, Battery, Measure, engine
 from sqlmodel import Session, select
 from time import sleep
@@ -7,8 +7,6 @@ from serial import Serial
 import enum
 
 from config import settings
-
-basicConfig(level=DEBUG)
 
 class Cmd(enum.Enum):
     SOLAR_SW = 'S'
@@ -205,4 +203,5 @@ def start_oversee():
         Command(Cmd.SOLAR_SW, 0).execute()
         Command(Cmd.WIND_SW, 0).execute()
 
-start_oversee()
+if __name__ == "__main__":
+    start_oversee()

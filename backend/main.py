@@ -2,11 +2,13 @@ from fastapi import FastAPI, Depends, HTTPException, Cookie
 from fastapi.middleware.cors import CORSMiddleware
 from database import create_db, Solar, Wind, Battery, Measure, Token, engine
 from sqlmodel import Session, select
-from ingester import start_ingest
 from datetime import datetime
+from config import settings
+import uvicorn
 
-create_db()
-#start_ingest()
+from logging import basicConfig, info
+
+basicConfig(level=settings.logging_level)
 
 app = FastAPI()
 
@@ -111,3 +113,6 @@ async def read_last_measure(access_token: bool = Depends(verify_token)):
         payload['status']['vca'] = measure.vca_status
 
     return payload
+
+if __name__ == "__main__":
+    uvicorn.run(app)
